@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -14,14 +13,14 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="500.0" prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.morpion.client.controller.LocalGameController" >
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="500.0" prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.morpion.client.controller.AIGameController">
    <children>
       <Rectangle fill="#ecf0f1" arcHeight="30.0" arcWidth="30.0" height="580.0" width="480.0" stroke="#3498db" strokeWidth="2.0" />
       <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="580.0" minWidth="480.0" prefHeight="580.0" prefWidth="480.0">
          <center>
             <VBox alignment="TOP_CENTER" spacing="20.0" BorderPane.alignment="CENTER">
                <children>
-                  <Label styleClass="game-title" text="Morpion - Mode Local">
+                  <Label styleClass="game-title" text="Morpion - Contre l'ordinateur">
                      <font>
                         <Font name="System Bold" size="22.0" />
                      </font>
@@ -30,7 +29,7 @@
                      <children>
                         <VBox alignment="CENTER" spacing="10.0">
                            <children>
-                              <Label text="Joueur 1" styleClass="player-info">
+                              <Label text="Vous" styleClass="player-info">
                                  <font>
                                     <Font name="System Bold" size="16.0" />
                                  </font>
@@ -42,7 +41,7 @@
                               </Label>
                            </children>
                         </VBox>
-                        <GridPane fx:id="boardGrid" alignment="CENTER" gridLinesVisible="false" id="boardGrid" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="300.0">
+                        <GridPane fx:id="boardGrid" alignment="CENTER" gridLinesVisible="true" id="boardGrid" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="300.0">
                            <columnConstraints>
                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -56,7 +55,7 @@
                         </GridPane>
                         <VBox alignment="CENTER" spacing="10.0">
                            <children>
-                              <Label text="Joueur 2" styleClass="player-info">
+                              <Label text="Ordinateur" styleClass="player-info">
                                  <font>
                                     <Font name="System Bold" size="16.0" />
                                  </font>
@@ -70,7 +69,7 @@
                         </VBox>
                      </children>
                   </HBox>
-                  <Label fx:id="statusLabel" text="Tour du Joueur X">
+                  <Label fx:id="statusLabel" text="À votre tour">
                      <font>
                         <Font name="System Bold" size="16.0" />
                      </font>

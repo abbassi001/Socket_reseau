@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import com.morpion.client.view.GameSymbols;
 import com.morpion.model.GameState;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,6 +17,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
 /**
@@ -52,15 +54,27 @@ public class LocalGameController {
 
 
     private void initializeBoard() {
+    tiles = new Pane[3][3];
+    
+    // Rendre les lignes de la grille visibles pour le débogage
+    boardGrid.setGridLinesVisible(true);
+    
+    // Attendre que le GridPane soit complètement chargé
+    Platform.runLater(() -> {
         System.out.println("Initialisation du plateau: " + boardGrid.getWidth() + "x" + boardGrid.getHeight());
-        tiles = new Pane[3][3];
         
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
                 Pane tile = new Pane();
                 tile.getStyleClass().add("game-tile");
-                tile.setMinSize(70, 70); // Forcer une taille minimale
-                tile.setPrefSize(80, 80); // Taille préférée
+                
+                // Forcer des dimensions fixes pour les tuiles
+                tile.setMinSize(70, 70);
+                tile.setPrefSize(80, 80);
+                tile.setMaxSize(90, 90);
+                
+                // Ajouter une bordure visible pour le débogage
+                tile.setStyle("-fx-border-color: #cccccc; -fx-border-width: 2; -fx-background-color: white;");
                 
                 System.out.println("Création tuile " + row + "," + col);
                 
@@ -71,10 +85,20 @@ public class LocalGameController {
                 
                 tiles[row][col] = tile;
                 boardGrid.add(tile, col, row);
+                
+                // Tester si la tuile est visible en ajoutant un X
+                if (row == 1 && col == 1) {
+                    Line line1 = new Line(10, 10, 70, 70);
+                    Line line2 = new Line(70, 10, 10, 70);
+                    line1.setStrokeWidth(3);
+                    line2.setStrokeWidth(3);
+                    tile.getChildren().addAll(line1, line2);
+                }
             }
         }
         System.out.println("Plateau initialisé avec " + 3*3 + " tuiles");
-    }
+    });
+}
     
     // /**
     //  * Initialise le plateau de jeu

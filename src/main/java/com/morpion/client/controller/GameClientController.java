@@ -77,40 +77,40 @@ public class GameClientController implements GameClient {
     // Tiles du jeu
     private Pane[][] tiles;
 
-    /**
-     * Initialise le contrôleur après le chargement du FXML
-     */
     @FXML
     public void initialize() {
         // Générer un ID de joueur unique
         playerId = UUID.randomUUID().toString();
-
+    
         // Initialiser l'état de connexion
         connected = false;
-
+    
         // Initialiser les champs de connexion
         serverTextField.setText("localhost");
         portTextField.setText(String.valueOf(NetworkUtils.DEFAULT_PORT));
         nameTextField.setText("Joueur" + (int) (Math.random() * 1000));
-
+    
         // Ajouter des validateurs pour le champ de port
         portTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 portTextField.setText(oldValue);
             }
         });
-
+    
         // Initialiser l'état du jeu
         gameState = new GameState();
-
+    
         // Initialiser les tuiles du plateau
         initializeBoard();
-
-        // Mettre à jour l'interface
-        updateUI();
-
-        // Créer l'exécuteur de service pour les tâches en arrière-plan
-        executorService = Executors.newCachedThreadPool();
+    
+        // Attendre que les tuiles soient initialisées avant de mettre à jour l'interface
+        Platform.runLater(() -> {
+            // Mettre à jour l'interface
+            updateUI();
+            
+            // Créer l'exécuteur de service pour les tâches en arrière-plan
+            executorService = Executors.newCachedThreadPool();
+        });
     }
 
     // /**
@@ -143,8 +143,13 @@ public class GameClientController implements GameClient {
             for (int col = 0; col < 3; col++) {
                 Pane tile = new Pane();
                 tile.getStyleClass().add("game-tile");
-                tile.setMinSize(70, 70); // Forcer une taille minimale
-                tile.setPrefSize(80, 80); // Taille préférée
+                
+                // Forcer des dimensions fixes
+                tile.setMinSize(70, 70);
+                tile.setPrefSize(80, 80);
+                
+                // Ajouter un style visible pour débogage
+                tile.setStyle("-fx-border-color: #333333; -fx-border-width: 2; -fx-background-color: white;");
                 
                 System.out.println("Création tuile " + row + "," + col);
                 
@@ -561,26 +566,28 @@ public class GameClientController implements GameClient {
         updateStatus();
     }
 
-    /**
-     * Met à jour le plateau de jeu
-     */
     private void updateBoard() {
-        if (gameState == null) {
+        if (gameState == null || tiles == null) {
             return;
         }
-
+    
         int[][] grid = gameState.getGrid();
-
+    
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
                 Pane tile = tiles[row][col];
+                
+                if (tile == null) {
+                    continue;  // Passer à la tuile suivante si null
+                }
+                
                 tile.getChildren().clear();
-
+    
                 switch (grid[row][col]) {
                     case 1: // Joueur X
                         drawX(tile);
                         break;
-
+    
                     case 2: // Joueur O
                         drawO(tile);
                         break;
@@ -588,7 +595,6 @@ public class GameClientController implements GameClient {
             }
         }
     }
-
 // Dans la classe GameClientController, remplacez les méthodes drawX et drawO actuelles
 // par ces versions qui utilisent la classe GameSymbols :
     /**

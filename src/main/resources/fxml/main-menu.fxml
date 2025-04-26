@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.shape.Rectangle?>
 
-<StackPane prefHeight="500.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.morpion.client.controller.MainMenuController">
+<StackPane prefHeight="500.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.morpion.client.controller.MainMenuController" >
    <children>
       <Rectangle fill="#ecf0f1" arcHeight="30.0" arcWidth="30.0" height="480.0" width="480.0" stroke="#3498db" strokeWidth="2.0">
          <StackPane.margin>
@@ -30,7 +30,7 @@
                         <Font size="16.0" />
                      </font>
                   </Label>
-                  <Button fx:id="localGameButton" mnemonicParsing="false" onAction="#handleLocalGameButton" styleClass="menu-button" text="Jeu Local">
+                  <Button fx:id="aiGameButton" mnemonicParsing="false" onAction="#handleAIGameButton" styleClass="menu-button" text="Jouer contre l'ordinateur">
                      <font>
                         <Font size="16.0" />
                      </font>
