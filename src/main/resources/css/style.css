@@ -247,3 +247,20 @@
 #boardGrid {
     -fx-grid-lines-visible: false;
 }
+
+.game-tile {
+    -fx-background-color: white;
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1;
+    -fx-min-width: 70px;
+    -fx-min-height: 70px;
+    -fx-pref-width: 80px;
+    -fx-pref-height: 80px;
+}
+
+#boardGrid {
+    -fx-background-color: #e0e0e0;
+    -fx-padding: 10;
+    -fx-hgap: 5;
+    -fx-vgap: 5;
+}

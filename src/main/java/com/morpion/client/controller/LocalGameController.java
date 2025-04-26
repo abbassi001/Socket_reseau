@@ -49,17 +49,20 @@ public class LocalGameController {
         // Mettre à jour l'interface
         updateUI();
     }
-    
-    /**
-     * Initialise le plateau de jeu
-     */
+
+
     private void initializeBoard() {
+        System.out.println("Initialisation du plateau: " + boardGrid.getWidth() + "x" + boardGrid.getHeight());
         tiles = new Pane[3][3];
         
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
                 Pane tile = new Pane();
                 tile.getStyleClass().add("game-tile");
+                tile.setMinSize(70, 70); // Forcer une taille minimale
+                tile.setPrefSize(80, 80); // Taille préférée
+                
+                System.out.println("Création tuile " + row + "," + col);
                 
                 final int finalRow = row;
                 final int finalCol = col;
@@ -70,7 +73,30 @@ public class LocalGameController {
                 boardGrid.add(tile, col, row);
             }
         }
+        System.out.println("Plateau initialisé avec " + 3*3 + " tuiles");
     }
+    
+    // /**
+    //  * Initialise le plateau de jeu
+    //  */
+    // private void initializeBoard() {
+    //     tiles = new Pane[3][3];
+        
+    //     for (int row = 0; row < 3; row++) {
+    //         for (int col = 0; col < 3; col++) {
+    //             Pane tile = new Pane();
+    //             tile.getStyleClass().add("game-tile");
+                
+    //             final int finalRow = row;
+    //             final int finalCol = col;
+                
+    //             tile.setOnMouseClicked(event -> handleTileClick(finalRow, finalCol));
+                
+    //             tiles[row][col] = tile;
+    //             boardGrid.add(tile, col, row);
+    //         }
+    //     }
+    // }
     
     /**
      * Gère le clic sur une tuile du plateau
