@@ -1,5 +1,14 @@
 package com.morpion.client.controller;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.morpion.client.view.GameClient;
 import com.morpion.common.network.GameCommand;
 import com.morpion.common.network.GameProtocol;
@@ -9,23 +18,16 @@ import com.morpion.model.Player;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.text.Text;
-
-import java.io.IOException;
-import java.net.Socket;
-import java.net.SocketException;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Contrôleur pour l'interface du client
@@ -118,6 +120,53 @@ public class GameClientController implements GameClient {
                 boardGrid.add(tile, col, row);
             }
         }
+    }
+        /**
+     * Se déconnecte du serveur
+     */
+    @Override
+    public void disconnect() {
+        if (!connected) {
+            return;
+        }
+        
+        try {
+            // Envoyer la commande de déconnexion
+            if (socket != null && !socket.isClosed()) {
+                GameCommand disconnectCommand = GameCommand.createDisconnectCommand(playerId);
+                GameProtocol.sendCommand(disconnectCommand, socket.getOutputStream());
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Erreur lors de l'envoi de la commande de déconnexion", e);
+        }
+        
+        running = false;
+        
+        try {
+            // Fermer la socket
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+                socket = null;
+            }
+            
+            // Interrompre le thread de communication
+            if (communicationThread != null) {
+                communicationThread.interrupt();
+                communicationThread = null;
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Erreur lors de la fermeture de la socket", e);
+        }
+        
+        // Réinitialiser l'état
+        connected = false;
+        localPlayer = null;
+        gameState = new GameState();
+        
+        // Mettre à jour l'interface
+        Platform.runLater(this::updateUI);
+        
+        LOGGER.info("Déconnecté du serveur");
     }
     
     /**
@@ -291,53 +340,53 @@ public class GameClientController implements GameClient {
         }
     }
     
-    /**
-     * Se déconnecte du serveur
-     */
-    @Override
-    public void disconnect() {
-        if (!connected) {
-            return;
-        }
+    // /**
+    //  * Se déconnecte du serveur
+    //  */
+    // @Override
+    // public void disconnect() {
+    //     if (!connected) {
+    //         return;
+    //     }
         
-        try {
-            // Envoyer la commande de déconnexion
-            if (socket != null && !socket.isClosed()) {
-                GameCommand disconnectCommand = GameCommand.createDisconnectCommand(playerId);
-                GameProtocol.sendCommand(disconnectCommand, socket.getOutputStream());
-            }
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Erreur lors de l'envoi de la commande de déconnexion", e);
-        }
+    //     try {
+    //         // Envoyer la commande de déconnexion
+    //         if (socket != null && !socket.isClosed()) {
+    //             GameCommand disconnectCommand = GameCommand.createDisconnectCommand(playerId);
+    //             GameProtocol.sendCommand(disconnectCommand, socket.getOutputStream());
+    //         }
+    //     } catch (IOException e) {
+    //         LOGGER.log(Level.WARNING, "Erreur lors de l'envoi de la commande de déconnexion", e);
+    //     }
         
-        running = false;
+    //     running = false;
         
-        try {
-            // Fermer la socket
-            if (socket != null && !socket.isClosed()) {
-                socket.close();
-                socket = null;
-            }
+    //     try {
+    //         // Fermer la socket
+    //         if (socket != null && !socket.isClosed()) {
+    //             socket.close();
+    //             socket = null;
+    //         }
             
-            // Interrompre le thread de communication
-            if (communicationThread != null) {
-                communicationThread.interrupt();
-                communicationThread = null;
-            }
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Erreur lors de la fermeture de la socket", e);
-        }
+    //         // Interrompre le thread de communication
+    //         if (communicationThread != null) {
+    //             communicationThread.interrupt();
+    //             communicationThread = null;
+    //         }
+    //     } catch (IOException e) {
+    //         LOGGER.log(Level.WARNING, "Erreur lors de la fermeture de la socket", e);
+    //     }
         
-        // Réinitialiser l'état
-        connected = false;
-        localPlayer = null;
-        gameState = new GameState();
+    //     // Réinitialiser l'état
+    //     connected = false;
+    //     localPlayer = null;
+    //     gameState = new GameState();
         
-        // Mettre à jour l'interface
-        Platform.runLater(this::updateUI);
+    //     // Mettre à jour l'interface
+    //     Platform.runLater(this::updateUI);
         
-        LOGGER.info("Déconnecté du serveur");
-    }
+    //     LOGGER.info("Déconnecté du serveur");
+    // }
     
     /**
      * Boucle de communication avec le serveur
