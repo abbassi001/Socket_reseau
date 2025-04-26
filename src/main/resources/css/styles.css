@@ -379,3 +379,187 @@
 .loss-rate-label {
     -fx-text-fill: -fx-secondary;
 }
+
+
+/* Styles pour la zone de chat */
+.chat-container {
+    -fx-background-color: -fx-white;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: -fx-grey;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+#chatTextArea {
+    -fx-background-radius: 0 0 10 10;
+    -fx-border-radius: 0 0 10 10;
+    -fx-padding: 10;
+    -fx-font-size: 13px;
+    -fx-border-width: 0;
+    -fx-background-color: -fx-white;
+}
+
+#chatVBox {
+    -fx-spacing: 10;
+    -fx-padding: 10;
+}
+
+/* Style pour les messages envoyés */
+.message-self {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: -fx-white;
+    -fx-background-radius: 15 15 5 15;
+    -fx-padding: 8 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-alignment: CENTER-RIGHT;
+    -fx-max-width: 80%;
+    -fx-wrap-text: true;
+}
+
+/* Style pour les messages reçus */
+.message-other {
+    -fx-background-color: -fx-grey-light;
+    -fx-text-fill: -fx-black;
+    -fx-background-radius: 15 15 15 5;
+    -fx-padding: 8 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-alignment: CENTER-LEFT;
+    -fx-max-width: 80%;
+    -fx-wrap-text: true;
+}
+
+/* Style pour l'interface de saisie */
+.chat-input-container {
+    -fx-background-color: -fx-white;
+    -fx-padding: 10;
+    -fx-spacing: 10;
+    -fx-border-color: -fx-grey;
+    -fx-border-width: 1 0 0 0;
+}
+
+#chatTextField {
+    -fx-background-radius: 20;
+    -fx-padding: 8 15;
+    -fx-border-radius: 20;
+    -fx-prompt-text-fill: -fx-grey-dark;
+}
+
+#chatSendButton {
+    -fx-background-radius: 20;
+    -fx-padding: 8 15;
+    -fx-graphic: url("icons/send-icon.png");  /* Vous devrez ajouter cette icône */
+}
+
+/* Animation pour les messages */
+.message-animation {
+    -fx-translate-y: 10;
+    -fx-opacity: 0;
+}
+
+/* Animation pour la mise en surbrillance des nouvelles messages */
+.message-highlight {
+    -fx-background-color: rgba(52, 152, 219, 0.1);
+    -fx-transition: -fx-background-color 1s ease-out;
+}
+
+
+/* Ajoutez ces styles à votre fichier CSS existant */
+
+/* Styles pour la zone de chat */
+.chat-container {
+    -fx-background-color: -fx-white;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: -fx-grey;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+.chat-scroll-pane {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.chat-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.chat-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0 5 5 0;
+}
+
+.chat-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: -fx-grey-dark;
+    -fx-background-radius: 5;
+}
+
+#chatMessagesContainer {
+    -fx-background-color: transparent;
+    -fx-padding: 10;
+    -fx-spacing: 10;
+}
+
+/* Style pour les messages envoyés */
+.message-self {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: -fx-white;
+    -fx-background-radius: 15 15 5 15;
+    -fx-padding: 8 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-max-width: 250;
+}
+
+/* Style pour les messages reçus */
+.message-other {
+    -fx-background-color: -fx-grey-light;
+    -fx-text-fill: -fx-black;
+    -fx-background-radius: 15 15 15 5;
+    -fx-padding: 8 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-max-width: 250;
+}
+
+/* Style pour l'interface de saisie */
+.chat-input-container {
+    -fx-background-color: -fx-white;
+    -fx-padding: 10;
+    -fx-spacing: 10;
+    -fx-border-color: -fx-grey;
+    -fx-border-width: 1 0 0 0;
+}
+
+#chatTextField {
+    -fx-background-radius: 20;
+    -fx-padding: 8 15;
+    -fx-border-radius: 20;
+    -fx-prompt-text-fill: -fx-grey-dark;
+}
+
+#chatSendButton {
+    -fx-background-radius: 20;
+    -fx-padding: 8 15;
+}
+
+/* Style pour afficher l'indicateur de frappe */
+.typing-indicator {
+    -fx-background-color: -fx-grey-light;
+    -fx-background-radius: 10;
+    -fx-padding: 5 10;
+    -fx-alignment: center-left;
+    -fx-max-width: 100;
+}
+
+.typing-dot {
+    -fx-background-color: -fx-grey-dark;
+    -fx-background-radius: 50%;
+    -fx-min-width: 5;
+    -fx-min-height: 5;
+    -fx-max-width: 5;
+    -fx-max-height: 5;
+    -fx-pref-width: 5;
+    -fx-pref-height: 5;
+    -fx-margin: 0 3;
+}

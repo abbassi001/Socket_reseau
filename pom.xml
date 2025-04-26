@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.morpion</groupId>
@@ -27,7 +26,7 @@
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-        
+
         <!-- JUnit pour les tests -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -41,6 +40,13 @@
             <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>21</version>            <!-- Utilise la même version que javafx-controls et javafx-fxml -->
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -54,7 +60,7 @@
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
-            
+
             <!-- Plugin JavaFX Maven -->
             <plugin>
                 <groupId>org.openjfx</groupId>
@@ -75,7 +81,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- Plugin pour créer un JAR exécutable -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
