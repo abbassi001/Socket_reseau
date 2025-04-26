@@ -13,7 +13,7 @@ public class GameState implements Serializable {
     
     // Tableau représentant la grille du morpion (3x3)
     // 0: case vide, 1: joueur 1 (X), 2: joueur 2 (O)
-    private int[][] grid;
+    private final int[][] grid;
     
     // Joueur dont c'est le tour (1 ou 2)
     private int currentPlayer;
