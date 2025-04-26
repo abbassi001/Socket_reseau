@@ -1,9 +1,5 @@
 package com.morpion.common.network;
 
-import com.morpion.model.GameState;
-import com.morpion.model.Move;
-import com.morpion.model.Player;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.util.UUID;
@@ -12,6 +8,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.morpion.model.GameState;
+import com.morpion.model.Move;
+import com.morpion.model.Player;
 
 /**
  * Représente une session de jeu côté serveur.
@@ -35,7 +35,7 @@ public class GameSession {
         this.clients = new ConcurrentHashMap<>();
         this.executorService = Executors.newCachedThreadPool();
         
-        LOGGER.info("Nouvelle session de jeu créée : " + sessionId);
+        LOGGER.log(Level.INFO, "Nouvelle session de jeu cr\u00e9\u00e9e : {0}", sessionId);
     }
     
     /**
@@ -51,7 +51,7 @@ public class GameSession {
         clients.put(clientId, clientHandler);
         executorService.submit(clientHandler);
         
-        LOGGER.info("Nouveau client connecté : " + clientId);
+        LOGGER.log(Level.INFO, "Nouveau client connect\u00e9 : {0}", clientId);
     }
     
     /**
@@ -65,7 +65,7 @@ public class GameSession {
         clients.clear();
         executorService.shutdown();
         
-        LOGGER.info("Session fermée : " + sessionId);
+        LOGGER.log(Level.INFO, "Session ferm\u00e9e : {0}", sessionId);
     }
     
     /**
@@ -95,7 +95,7 @@ public class GameSession {
         if (client != null) {
             client.sendCommand(command);
         } else {
-            LOGGER.warning("Tentative d'envoi d'une commande à un client inexistant : " + clientId);
+            LOGGER.log(Level.WARNING, "Tentative d''envoi d''une commande \u00e0 un client inexistant : {0}", clientId);
         }
     }
     
@@ -129,9 +129,9 @@ public class GameSession {
                     break;
                 
                 default:
-                    LOGGER.warning("Commande non gérée : " + command.getType());
+                    LOGGER.log(Level.WARNING, "Commande non g\u00e9r\u00e9e : {0}", command.getType());
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Erreur lors du traitement d'une commande", e);
             try {
                 sendCommand(clientId, GameCommand.createErrorCommand("Erreur interne du serveur"));
@@ -171,7 +171,7 @@ public class GameSession {
         // Envoyer l'état du jeu à tous les clients
         broadcastCommand(GameCommand.createGameStateCommand(gameState));
         
-        LOGGER.info("Joueur connecté : " + player);
+        LOGGER.log(Level.INFO, "Joueur connect\u00e9 : {0}", player);
     }
     
     /**
@@ -192,7 +192,7 @@ public class GameSession {
         // Informer les autres clients
         broadcastCommand(GameCommand.createGameStateCommand(gameState));
         
-        LOGGER.info("Joueur déconnecté : " + clientId);
+        LOGGER.log(Level.INFO, "Joueur d\u00e9connect\u00e9 : {0}", clientId);
     }
     
     /**
@@ -208,7 +208,7 @@ public class GameSession {
         if (valid) {
             // Diffuser l'état du jeu mis à jour
             broadcastCommand(GameCommand.createGameStateCommand(gameState));
-            LOGGER.info("Mouvement effectué : " + move);
+            LOGGER.log(Level.INFO, "Mouvement effectu\u00e9 : {0}", move);
         } else {
             // Informer le client que le mouvement est invalide
             try {
@@ -236,7 +236,7 @@ public class GameSession {
     private void handleChatMessage(GameCommand command) {
         // Rediffuser le message à tous les clients
         broadcastCommand(command);
-        LOGGER.info("Message de chat reçu de " + command.getSenderId() + " : " + command.getMessage());
+        LOGGER.log(Level.INFO, "Message de chat re\u00e7u de {0} : {1}", new Object[]{command.getSenderId(), command.getMessage()});
     }
     
     /**
