@@ -30,6 +30,7 @@ public class LocalGameController {
     @FXML private Label statusLabel;
     @FXML private Button resetButton;
     
+    
     private GameState gameState;
     private Pane[][] tiles;
     

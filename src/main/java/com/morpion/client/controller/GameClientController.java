@@ -24,12 +24,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
 /**
@@ -137,33 +137,50 @@ public class GameClientController implements GameClient {
     // }
 
     private void initializeBoard() {
-        System.out.println("Initialisation du plateau: " + boardGrid.getWidth() + "x" + boardGrid.getHeight());
         tiles = new Pane[3][3];
         
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
-                Pane tile = new Pane();
-                tile.getStyleClass().add("game-tile");
-                
-                // Forcer des dimensions fixes
-                tile.setMinSize(70, 70);
-                tile.setPrefSize(80, 80);
-                
-                // Ajouter un style visible pour débogage
-                tile.setStyle("-fx-border-color: #333333; -fx-border-width: 2; -fx-background-color: white;");
-                
-                System.out.println("Création tuile " + row + "," + col);
-                
-                final int finalRow = row;
-                final int finalCol = col;
-                
-                tile.setOnMouseClicked(event -> handleTileClick(finalRow, finalCol));
-                
-                tiles[row][col] = tile;
-                boardGrid.add(tile, col, row);
+        // Rendre les lignes de la grille visibles pour le débogage
+        boardGrid.setGridLinesVisible(true);
+        
+        // Attendre que le GridPane soit complètement chargé
+        Platform.runLater(() -> {
+            System.out.println("Initialisation du plateau: " + boardGrid.getWidth() + "x" + boardGrid.getHeight());
+            
+            for (int row = 0; row < 3; row++) {
+                for (int col = 0; col < 3; col++) {
+                    Pane tile = new Pane();
+                    tile.getStyleClass().add("game-tile");
+                    
+                    // Forcer des dimensions fixes pour les tuiles
+                    tile.setMinSize(70, 70);
+                    tile.setPrefSize(80, 80);
+                    tile.setMaxSize(90, 90);
+                    
+                    // Ajouter une bordure visible pour le débogage
+                    tile.setStyle("-fx-border-color: #cccccc; -fx-border-width: 2; -fx-background-color: white;");
+                    
+                    System.out.println("Création tuile " + row + "," + col);
+                    
+                    final int finalRow = row;
+                    final int finalCol = col;
+                    
+                    tile.setOnMouseClicked(event -> handleTileClick(finalRow, finalCol));
+                    
+                    tiles[row][col] = tile;
+                    boardGrid.add(tile, col, row);
+                    
+                    // Tester si la tuile est visible en ajoutant un X
+                    if (row == 1 && col == 1) {
+                        Line line1 = new Line(10, 10, 70, 70);
+                        Line line2 = new Line(70, 10, 10, 70);
+                        line1.setStrokeWidth(3);
+                        line2.setStrokeWidth(3);
+                        tile.getChildren().addAll(line1, line2);
+                    }
+                }
             }
-        }
-        System.out.println("Plateau initialisé avec " + 3*3 + " tuiles");
+            System.out.println("Plateau initialisé avec " + 3*3 + " tuiles");
+        });
     }
 
     /**
@@ -567,28 +584,26 @@ public class GameClientController implements GameClient {
         updateStatus();
     }
 
+    /**
+     * Met à jour le plateau de jeu
+     */
     private void updateBoard() {
-        if (gameState == null || tiles == null) {
+        if (gameState == null) {
             return;
         }
-    
+
         int[][] grid = gameState.getGrid();
-    
+
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
                 Pane tile = tiles[row][col];
-                
-                if (tile == null) {
-                    continue;  // Passer à la tuile suivante si null
-                }
-                
                 tile.getChildren().clear();
-    
+
                 switch (grid[row][col]) {
                     case 1: // Joueur X
                         drawX(tile);
                         break;
-    
+
                     case 2: // Joueur O
                         drawO(tile);
                         break;
@@ -596,6 +611,7 @@ public class GameClientController implements GameClient {
             }
         }
     }
+
 // Dans la classe GameClientController, remplacez les méthodes drawX et drawO actuelles
 // par ces versions qui utilisent la classe GameSymbols :
     /**
@@ -618,101 +634,57 @@ public class GameClientController implements GameClient {
 
 // N'oubliez pas d'ajouter l'import:
 // import com.morpion.client.view.GameSymbols;
-
-
-  private void updateStatus() {
-    if (!connected || gameState == null || localPlayer == null) {
-        statusLabel.setText("Non connecté");
-        return;
-    }
-
-    String status;
-
-    switch (gameState.getStatus()) {
-        case WAITING_FOR_PLAYERS:
-            status = "En attente d'un autre joueur...";
-            statusLabel.setText(status);
-            break;
-
-        case IN_PROGRESS:
-            if (localPlayer.isMyTurn(gameState.getCurrentPlayer())) {
-                status = "C'est votre tour";
-            } else {
-                status = "Tour de l'adversaire";
-            }
-            statusLabel.setText(status);
-            break;
-
-        case PLAYER1_WON:
-            if (localPlayer.getPlayerNumber() == 1) {
-                status = "Vous avez gagné !";
-                statusLabel.setText(status);
-                Platform.runLater(() -> showGameEndDialog("Victoire !", "Félicitations ! Vous avez gagné la partie !"));
-            } else {
-                status = "Vous avez perdu !";
-                statusLabel.setText(status);
-                Platform.runLater(() -> showGameEndDialog("Défaite", "Vous avez perdu la partie."));
-            }
-            break;
-
-        case PLAYER2_WON:
-            if (localPlayer.getPlayerNumber() == 2) {
-                status = "Vous avez gagné !";
-                statusLabel.setText(status);
-                Platform.runLater(() -> showGameEndDialog("Victoire !", "Félicitations ! Vous avez gagné la partie !"));
-            } else {
-                status = "Vous avez perdu !";
-                statusLabel.setText(status);
-                Platform.runLater(() -> showGameEndDialog("Défaite", "Vous avez perdu la partie."));
-            }
-            break;
-
-        case DRAW:
-            status = "Match nul !";
-            statusLabel.setText(status);
-            Platform.runLater(() -> showGameEndDialog("Match nul", "La partie s'est terminée sur un match nul !"));
-            break;
-
-        default:
-            status = "État inconnu";
-            statusLabel.setText(status);
-    }
-}
-
-/**
- * Affiche une boîte de dialogue à la fin d'une partie avec option de rejouer
- */
-private void showGameEndDialog(String title, String message) {
-    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-    alert.setTitle(title);
-    alert.setHeaderText(null);
-    alert.setContentText(message + "\n\nQue souhaitez-vous faire ?");
-    
-    // Ajouter des boutons personnalisés
-    ButtonType rejouerBtn = new ButtonType("Nouvelle partie");
-    ButtonType continuerBtn = new ButtonType("Continuer");
-    ButtonType menuBtn = new ButtonType("Retour au menu");
-    
-    alert.getButtonTypes().setAll(rejouerBtn, continuerBtn, menuBtn);
-    
-    // Attendre la réponse de l'utilisateur
-    alert.showAndWait().ifPresent(response -> {
-        if (response == rejouerBtn) {
-            // Demander une réinitialisation au serveur
-            try {
-                GameCommand resetCommand = GameCommand.createResetGameCommand(playerId);
-                GameProtocol.sendCommand(resetCommand, socket.getOutputStream());
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Erreur lors de l'envoi de la commande de réinitialisation", e);
-                disconnect();
-            }
-        } else if (response == menuBtn) {
-            // Retourner au menu principal
-            handleBackToMenuButton();
+    /**
+     * Met à jour le statut du jeu
+     */
+    private void updateStatus() {
+        if (!connected || gameState == null || localPlayer == null) {
+            statusLabel.setText("Non connecté");
+            return;
         }
-        // Si continuer, ne rien faire
-    });
-}
+
+        String status;
+
+        switch (gameState.getStatus()) {
+            case WAITING_FOR_PLAYERS:
+                status = "En attente d'un autre joueur...";
+                break;
+
+            case IN_PROGRESS:
+                if (localPlayer.isMyTurn(gameState.getCurrentPlayer())) {
+                    status = "C'est votre tour";
+                } else {
+                    status = "Tour de l'adversaire";
+                }
+                break;
+
+            case PLAYER1_WON:
+                if (localPlayer.getPlayerNumber() == 1) {
+                    status = "Vous avez gagné !";
+                } else {
+                    status = "Vous avez perdu !";
+                }
+                break;
+
+            case PLAYER2_WON:
+                if (localPlayer.getPlayerNumber() == 2) {
+                    status = "Vous avez gagné !";
+                } else {
+                    status = "Vous avez perdu !";
+                }
+                break;
+
+            case DRAW:
+                status = "Match nul !";
+                break;
+
+            default:
+                status = "État inconnu";
+        }
+
+        statusLabel.setText(status);
+    }
+
     /**
      * Affiche une boîte de dialogue d'alerte
      *
