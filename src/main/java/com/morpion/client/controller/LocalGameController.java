@@ -1,7 +1,12 @@
 package com.morpion.client.controller;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.morpion.client.view.GameSymbols;
 import com.morpion.model.GameState;
-import javafx.application.Platform;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,14 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
 import javafx.stage.Stage;
-
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Contrôleur pour le jeu de morpion en mode local (sans réseau)
@@ -143,44 +141,29 @@ public class LocalGameController {
         }
     }
     
-    /**
-     * Dessine un X dans une tuile
-     * 
-     * @param tile La tuile dans laquelle dessiner
-     */
-    private void drawX(Pane tile) {
-        double size = Math.min(tile.getWidth(), tile.getHeight());
-        double margin = size * 0.2;
-        
-        Line line1 = new Line(margin, margin, size - margin, size - margin);
-        Line line2 = new Line(size - margin, margin, margin, size - margin);
-        
-        line1.setStrokeWidth(3);
-        line2.setStrokeWidth(3);
-        
-        line1.setStroke(Color.BLUE);
-        line2.setStroke(Color.BLUE);
-        
-        tile.getChildren().addAll(line1, line2);
-    }
-    
-    /**
-     * Dessine un O dans une tuile
-     * 
-     * @param tile La tuile dans laquelle dessiner
-     */
-    private void drawO(Pane tile) {
-        double size = Math.min(tile.getWidth(), tile.getHeight());
-        double radius = size * 0.4;
-        
-        Circle circle = new Circle(size / 2, size / 2, radius);
-        
-        circle.setStroke(Color.RED);
-        circle.setFill(Color.TRANSPARENT);
-        circle.setStrokeWidth(3);
-        
-        tile.getChildren().add(circle);
-    }
+// Dans la classe LocalGameController, remplacez les méthodes drawX et drawO actuelles
+// par ces versions qui utilisent la classe GameSymbols :
+
+/**
+ * Dessine un X dans une tuile
+ * 
+ * @param tile La tuile dans laquelle dessiner
+ */
+private void drawX(Pane tile) {
+    GameSymbols.drawX(tile);
+}
+
+/**
+ * Dessine un O dans une tuile
+ * 
+ * @param tile La tuile dans laquelle dessiner
+ */
+private void drawO(Pane tile) {
+    GameSymbols.drawO(tile);
+}
+
+// N'oubliez pas d'ajouter l'import:
+// import com.morpion.client.view.GameSymbols;
     
     /**
      * Met à jour le statut du jeu

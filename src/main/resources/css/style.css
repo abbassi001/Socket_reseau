@@ -1,96 +1,249 @@
+/* Thème de couleurs */
+* {
+    -fx-primary: #3498db;
+    -fx-primary-light: #5dade2;
+    -fx-primary-dark: #2980b9;
+    -fx-secondary: #e74c3c;
+    -fx-secondary-light: #f1948a;
+    -fx-grey-light: #f5f5f5;
+    -fx-grey: #e0e0e0;
+    -fx-grey-dark: #9e9e9e;
+    -fx-black: #333333;
+    -fx-white: #ffffff;
+}
+
 /* Styles généraux */
 .root {
-    -fx-font-family: "Segoe UI", Arial, sans-serif;
-    -fx-background-color: #f5f5f5;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-background-color: -fx-grey-light;
 }
 
-/* Styles pour le tableau de jeu */
-.game-tile {
-    -fx-background-color: white;
-    -fx-border-color: #ddd;
-    -fx-border-width: 1;
-    -fx-min-width: 60px;
-    -fx-min-height: 60px;
-    -fx-pref-width: 66px;
-    -fx-pref-height: 66px;
-    -fx-cursor: hand;
+/* Styles pour les panneaux titrés */
+.titled-pane {
+    -fx-animated: true;
 }
 
-.game-tile:hover {
-    -fx-background-color: #f0f0f0;
-}
-
-/* Styles pour les boutons */
-.button {
-    -fx-background-color: #4285f4;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-padding: 8px 15px;
-    -fx-border-radius: 5;
-    -fx-background-radius: 5;
-}
-
-.button:hover {
-    -fx-background-color: #2a75f3;
-}
-
-.button:pressed {
-    -fx-background-color: #1a65e3;
-}
-
-.button:disabled {
-    -fx-background-color: #cccccc;
-    -fx-text-fill: #666666;
-}
-
-/* Styles pour les champs de texte */
-.text-field {
-    -fx-background-color: white;
-    -fx-border-color: #cccccc;
-    -fx-border-radius: 3;
-    -fx-background-radius: 3;
-    -fx-padding: 5;
-}
-
-.text-field:focused {
-    -fx-border-color: #4285f4;
-}
-
-/* Styles pour les zones de texte */
-.text-area {
-    -fx-background-color: white;
-    -fx-border-color: #cccccc;
-    -fx-border-radius: 3;
-    -fx-background-radius: 3;
-}
-
-.text-area .content {
-    -fx-background-color: white;
-}
-
-.text-area:focused .content {
-    -fx-background-color: white;
-}
-
-/* Styles pour les titres de panneau */
 .titled-pane > .title {
-    -fx-background-color: #4285f4;
-    -fx-text-fill: white;
+    -fx-background-color: -fx-primary;
+    -fx-background-radius: 5 5 0 0;
+    -fx-padding: 10 15;
+}
+
+.titled-pane > .title > .text {
+    -fx-fill: -fx-white;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 
 .titled-pane > .title > .arrow-button .arrow {
-    -fx-background-color: white;
+    -fx-background-color: -fx-white;
 }
 
-/* Styles pour les libellés de statut */
+.titled-pane > .content {
+    -fx-background-color: -fx-white;
+    -fx-border-color: -fx-primary-light;
+    -fx-border-width: 1;
+    -fx-border-radius: 0 0 5 5;
+    -fx-background-radius: 0 0 5 5;
+    -fx-padding: 10;
+}
+
+/* Styles pour le plateau de jeu */
+.game-tile {
+    -fx-background-color: -fx-white;
+    -fx-border-color: -fx-grey;
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-min-width: 70px;
+    -fx-min-height: 70px;
+    -fx-pref-width: 80px;
+    -fx-pref-height: 80px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-transition: -fx-background-color 0.2s;
+}
+
+.game-tile:hover {
+    -fx-background-color: -fx-grey-light;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+#boardGrid {
+    -fx-background-color: -fx-primary-light;
+    -fx-padding: 10;
+    -fx-background-radius: 10;
+    -fx-hgap: 10;
+    -fx-vgap: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 3);
+}
+
+/* Styles pour les boutons */
+.button {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: -fx-white;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 1);
+}
+
+.button:hover {
+    -fx-background-color: -fx-primary-dark;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);
+}
+
+.button:pressed {
+    -fx-background-color: -fx-primary-dark;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 0);
+}
+
+.button:disabled {
+    -fx-background-color: -fx-grey;
+    -fx-text-fill: -fx-grey-dark;
+    -fx-effect: none;
+}
+
+/* Style pour le bouton de connexion */
+#connectButton {
+    -fx-background-color: #27ae60;
+}
+
+#connectButton:hover {
+    -fx-background-color: #219653;
+}
+
+/* Style pour le bouton de déconnexion */
+#disconnectButton {
+    -fx-background-color: -fx-secondary;
+}
+
+#disconnectButton:hover {
+    -fx-background-color: #c0392b;
+}
+
+/* Style pour le bouton de réinitialisation */
+#resetButton {
+    -fx-background-color: #f39c12;
+}
+
+#resetButton:hover {
+    -fx-background-color: #d35400;
+}
+
+/* Styles pour les champs de texte */
+.text-field {
+    -fx-background-color: -fx-white;
+    -fx-border-color: -fx-grey;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 8;
+    -fx-prompt-text-fill: -fx-grey-dark;
+}
+
+.text-field:focused {
+    -fx-border-color: -fx-primary;
+    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.3), 5, 0, 0, 0);
+}
+
+/* Styles pour les zones de texte */
+.text-area {
+    -fx-background-color: -fx-white;
+    -fx-border-color: -fx-grey;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-font-size: 13px;
+}
+
+.text-area .content {
+    -fx-background-color: -fx-white;
+}
+
+.text-area:focused .content {
+    -fx-background-color: -fx-white;
+}
+
+/* Styles pour les libellés */
+.label {
+    -fx-text-fill: -fx-black;
+}
+
+/* Style pour l'étiquette de statut */
 #statusLabel {
-    -fx-padding: 5;
-    -fx-background-color: #f0f0f0;
-    -fx-border-color: #ddd;
-    -fx-border-radius: 3;
-    -fx-background-radius: 3;
-    -fx-text-fill: #333;
+    -fx-padding: 10;
+    -fx-background-color: -fx-grey-light;
+    -fx-border-color: -fx-grey;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
     -fx-alignment: center;
-    -fx-min-width: 200px;
+    -fx-min-width: 250px;
+    -fx-text-fill: -fx-black;
+}
+
+/* Style pour l'écran d'accueil */
+.menu-button {
+    -fx-padding: 15 30;
+    -fx-font-size: 16px;
+    -fx-min-width: 250px;
+}
+
+#localGameButton {
+    -fx-background-color: #16a085;
+}
+
+#localGameButton:hover {
+    -fx-background-color: #1abc9c;
+}
+
+#networkGameButton {
+    -fx-background-color: #2980b9;
+}
+
+#networkGameButton:hover {
+    -fx-background-color: #3498db;
+}
+
+#exitButton {
+    -fx-background-color: #c0392b;
+}
+
+#exitButton:hover {
+    -fx-background-color: #e74c3c;
+}
+
+.game-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-dark;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 2, 0, 0, 1);
+}
+
+.game-subtitle {
+    -fx-font-size: 16px;
+    -fx-text-fill: -fx-grey-dark;
+    -fx-font-style: italic;
+}
+
+/* Animation pour les tuiles du plateau */
+.game-tile {
+    -fx-transition-duration: 0.2s;
+}
+
+/* Style pour les messages de chat */
+#chatTextArea {
+    -fx-font-size: 13px;
+}
+
+/* Style pour le panneau latéral du chat */
+#chatVBox {
+    -fx-spacing: 10;
+}
+
+/* Améliorer l'apparence de la grille */
+#boardGrid {
+    -fx-grid-lines-visible: false;
 }

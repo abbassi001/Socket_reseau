@@ -20,15 +20,22 @@ public class ClientMain extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Charger l'interface FXML du menu principal
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main-menu.fxml"));
+            // Charger l'interface FXML du jeu client (original)
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/game-client.fxml"));
             Parent root = loader.load();
             
             // Configurer la scène
-            Scene scene = new Scene(root, 400, 400);
-            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            Scene scene = new Scene(root, 600, 500);
             
-            primaryStage.setTitle("Morpion");
+            // Charger les styles CSS
+            String cssPath = "css/styles.css";
+            if (getClass().getClassLoader().getResource(cssPath) != null) {
+                scene.getStylesheets().add(getClass().getClassLoader().getResource(cssPath).toExternalForm());
+            } else {
+                LOGGER.warning("Le fichier CSS n'a pas été trouvé: " + cssPath);
+            }
+            
+            primaryStage.setTitle("Morpion - Client");
             primaryStage.setScene(scene);
             primaryStage.show();
             

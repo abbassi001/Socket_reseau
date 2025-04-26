@@ -1,15 +1,15 @@
 package com.morpion.client.controller;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
-
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Contrôleur pour le menu principal qui permet de choisir le mode de jeu
@@ -29,12 +29,15 @@ public class MainMenuController {
     public void handleLocalGameButton() {
         try {
             // Charger l'interface FXML du jeu local
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/local-game.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/local-game.fxml"));
             Parent root = loader.load();
             
             // Créer une nouvelle scène
-            Scene scene = new Scene(root, 400, 500);
-            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            Scene scene = new Scene(root, 500, 600);
+            String cssPath = "css/styles.css";
+            if (getClass().getClassLoader().getResource(cssPath) != null) {
+                scene.getStylesheets().add(getClass().getClassLoader().getResource(cssPath).toExternalForm());
+            }
             
             // Obtenir la fenêtre actuelle
             Stage stage = (Stage) localGameButton.getScene().getWindow();
@@ -43,6 +46,8 @@ public class MainMenuController {
             stage.setTitle("Morpion - Mode Local");
             stage.setScene(scene);
             stage.show();
+            
+            LOGGER.info("Interface du jeu local chargée");
             
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Erreur lors du chargement de l'interface du jeu local", e);
@@ -56,12 +61,15 @@ public class MainMenuController {
     public void handleNetworkGameButton() {
         try {
             // Charger l'interface FXML du jeu en réseau
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/game-client.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/game-client.fxml"));
             Parent root = loader.load();
             
             // Créer une nouvelle scène
-            Scene scene = new Scene(root, 600, 500);
-            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            Scene scene = new Scene(root, 700, 700);
+            String cssPath = "css/styles.css";
+            if (getClass().getClassLoader().getResource(cssPath) != null) {
+                scene.getStylesheets().add(getClass().getClassLoader().getResource(cssPath).toExternalForm());
+            }
             
             // Obtenir la fenêtre actuelle
             Stage stage = (Stage) networkGameButton.getScene().getWindow();
@@ -70,6 +78,8 @@ public class MainMenuController {
             stage.setTitle("Morpion - Mode Réseau");
             stage.setScene(scene);
             stage.show();
+            
+            LOGGER.info("Interface du jeu en réseau chargée");
             
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Erreur lors du chargement de l'interface du jeu en réseau", e);
@@ -84,5 +94,7 @@ public class MainMenuController {
         // Fermer l'application
         Stage stage = (Stage) exitButton.getScene().getWindow();
         stage.close();
+        
+        LOGGER.info("Application fermée");
     }
 }
