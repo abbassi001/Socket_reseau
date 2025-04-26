@@ -1,5 +1,9 @@
 package com.morpion.server.controller;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.function.Consumer;
+
 import com.morpion.common.utils.NetworkUtils;
 import com.morpion.server.view.ServerMonitor;
 
@@ -10,8 +14,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
-
-import java.util.function.Consumer;
 
 /**
  * Contrôleur pour l'interface du serveur
@@ -27,6 +29,7 @@ public class GameServerController implements ServerMonitor {
     
     private Consumer<Integer> startServerCallback;
     private Runnable stopServerCallback;
+    private DateTimeFormatter timeFormatter;
     
     /**
      * Initialise le contrôleur après le chargement du FXML
@@ -37,12 +40,18 @@ public class GameServerController implements ServerMonitor {
         updateServerStatus(false, null, 0);
         portTextField.setText(String.valueOf(NetworkUtils.DEFAULT_PORT));
         
+        // Initialiser le formatteur de date/heure pour les logs
+        timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        
         // Ajouter des validateurs pour le champ de port
         portTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 portTextField.setText(oldValue);
             }
         });
+        
+        // Message initial dans le log
+        addLogMessage("Serveur prêt à démarrer. Utilisez le bouton 'Démarrer'.");
     }
     
     /**
@@ -129,4 +138,18 @@ public class GameServerController implements ServerMonitor {
      * 
      * @param message Le message à ajouter
      */
-    @
+    @Override
+    public void addLogMessage(String message) {
+        Platform.runLater(() -> {
+            // Ajouter l'horodatage au message
+            String timestamp = LocalDateTime.now().format(timeFormatter);
+            String formattedMessage = "[" + timestamp + "] " + message;
+            
+            // Ajouter le message au log
+            logTextArea.appendText(formattedMessage + "\n");
+            
+            // Faire défiler automatiquement vers le bas
+            logTextArea.setScrollTop(Double.MAX_VALUE);
+        });
+    }
+}
