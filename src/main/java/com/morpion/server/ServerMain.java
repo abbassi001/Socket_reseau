@@ -1,5 +1,11 @@
 package com.morpion.server;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.morpion.common.network.GameSession;
 import com.morpion.common.utils.NetworkUtils;
 import com.morpion.server.view.ServerMonitor;
@@ -10,12 +16,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Point d'entrée de l'application serveur
@@ -66,44 +66,44 @@ public class ServerMain extends Application {
         }
     }
     
-    /**
-     * Démarre le serveur sur le port spécifié
-     * 
-     * @param port Le port sur lequel démarrer le serveur
-     */
-    public void startServer(int port) {
-        if (running) {
-            stopServer();
-        }
-        
-        try {
-            // Créer la socket serveur
-            serverSocket = new ServerSocket(port);
-            gameSession = new GameSession();
-            running = true;
-            
-            // Créer et démarrer le thread d'écoute
-            serverThread = new Thread(this::acceptClientsLoop);
-            serverThread.setDaemon(true);
-            serverThread.start();
-            
-            // Mettre à jour l'interface
-            String localIP = NetworkUtils.getMainLocalIpAddress();
-            Platform.runLater(() -> {
-                serverMonitor.updateServerStatus(true, localIP, port);
-                serverMonitor.addLogMessage("Serveur démarré sur " + localIP + ":" + port);
-            });
-            
-            LOGGER.info("Serveur démarré sur " + localIP + ":" + port);
-            
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Erreur lors du démarrage du serveur", e);
-            Platform.runLater(() -> {
-                serverMonitor.updateServerStatus(false, null, 0);
-                serverMonitor.addLogMessage("Erreur lors du démarrage du serveur: " + e.getMessage());
-            });
-        }
+    // Dans ServerMain.java, modifiez la méthode startServer
+
+public void startServer(int port) {
+    if (running) {
+        stopServer();
     }
+    
+    try {
+        // Créer la socket serveur
+        serverSocket = new ServerSocket(port);
+        
+        // Créer la session de jeu avec le moniteur serveur
+        gameSession = new GameSession(serverMonitor);
+        
+        running = true;
+        
+        // Créer et démarrer le thread d'écoute
+        serverThread = new Thread(this::acceptClientsLoop);
+        serverThread.setDaemon(true);
+        serverThread.start();
+        
+        // Mettre à jour l'interface
+        String localIP = NetworkUtils.getMainLocalIpAddress();
+        Platform.runLater(() -> {
+            serverMonitor.updateServerStatus(true, localIP, port);
+            serverMonitor.addLogMessage("Serveur démarré sur " + localIP + ":" + port);
+        });
+        
+        LOGGER.info("Serveur démarré sur " + localIP + ":" + port);
+        
+    } catch (IOException e) {
+        LOGGER.log(Level.SEVERE, "Erreur lors du démarrage du serveur", e);
+        Platform.runLater(() -> {
+            serverMonitor.updateServerStatus(false, null, 0);
+            serverMonitor.addLogMessage("Erreur lors du démarrage du serveur: " + e.getMessage());
+        });
+    }
+}
     
     /**
      * Arrête le serveur

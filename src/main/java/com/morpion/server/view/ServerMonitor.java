@@ -36,4 +36,37 @@ public interface ServerMonitor {
      * @param message Le message à ajouter
      */
     void addLogMessage(String message);
+    
+    /**
+     * Ajoute un client à la liste des clients connectés
+     * 
+     * @param clientId L'ID du client
+     * @param clientName Le nom du client
+     * @param clientAddress L'adresse du client
+     */
+    void addClient(String clientId, String clientName, String clientAddress);
+    
+    /**
+     * Supprime un client de la liste des clients connectés
+     * 
+     * @param clientId L'ID du client
+     */
+    void removeClient(String clientId);
+    
+    /**
+     * Enregistre une commande échangée entre le serveur et un client
+     * 
+     * @param clientId L'ID du client concerné
+     * @param direction Direction de la commande (SEND ou RECEIVE)
+     * @param commandType Type de la commande
+     * @param details Détails supplémentaires
+     */
+    void logCommand(String clientId, String direction, String commandType, String details);
+    
+    /**
+     * Met à jour l'affichage de l'état du jeu
+     * 
+     * @param gameStateText Représentation textuelle de l'état du jeu
+     */
+    void updateGameState(String gameStateText);
 }

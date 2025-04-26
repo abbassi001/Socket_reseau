@@ -24,6 +24,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -617,57 +618,101 @@ public class GameClientController implements GameClient {
 
 // N'oubliez pas d'ajouter l'import:
 // import com.morpion.client.view.GameSymbols;
-    /**
-     * Met à jour le statut du jeu
-     */
-    private void updateStatus() {
-        if (!connected || gameState == null || localPlayer == null) {
-            statusLabel.setText("Non connecté");
-            return;
-        }
 
-        String status;
 
-        switch (gameState.getStatus()) {
-            case WAITING_FOR_PLAYERS:
-                status = "En attente d'un autre joueur...";
-                break;
-
-            case IN_PROGRESS:
-                if (localPlayer.isMyTurn(gameState.getCurrentPlayer())) {
-                    status = "C'est votre tour";
-                } else {
-                    status = "Tour de l'adversaire";
-                }
-                break;
-
-            case PLAYER1_WON:
-                if (localPlayer.getPlayerNumber() == 1) {
-                    status = "Vous avez gagné !";
-                } else {
-                    status = "Vous avez perdu !";
-                }
-                break;
-
-            case PLAYER2_WON:
-                if (localPlayer.getPlayerNumber() == 2) {
-                    status = "Vous avez gagné !";
-                } else {
-                    status = "Vous avez perdu !";
-                }
-                break;
-
-            case DRAW:
-                status = "Match nul !";
-                break;
-
-            default:
-                status = "État inconnu";
-        }
-
-        statusLabel.setText(status);
+  private void updateStatus() {
+    if (!connected || gameState == null || localPlayer == null) {
+        statusLabel.setText("Non connecté");
+        return;
     }
 
+    String status;
+
+    switch (gameState.getStatus()) {
+        case WAITING_FOR_PLAYERS:
+            status = "En attente d'un autre joueur...";
+            statusLabel.setText(status);
+            break;
+
+        case IN_PROGRESS:
+            if (localPlayer.isMyTurn(gameState.getCurrentPlayer())) {
+                status = "C'est votre tour";
+            } else {
+                status = "Tour de l'adversaire";
+            }
+            statusLabel.setText(status);
+            break;
+
+        case PLAYER1_WON:
+            if (localPlayer.getPlayerNumber() == 1) {
+                status = "Vous avez gagné !";
+                statusLabel.setText(status);
+                Platform.runLater(() -> showGameEndDialog("Victoire !", "Félicitations ! Vous avez gagné la partie !"));
+            } else {
+                status = "Vous avez perdu !";
+                statusLabel.setText(status);
+                Platform.runLater(() -> showGameEndDialog("Défaite", "Vous avez perdu la partie."));
+            }
+            break;
+
+        case PLAYER2_WON:
+            if (localPlayer.getPlayerNumber() == 2) {
+                status = "Vous avez gagné !";
+                statusLabel.setText(status);
+                Platform.runLater(() -> showGameEndDialog("Victoire !", "Félicitations ! Vous avez gagné la partie !"));
+            } else {
+                status = "Vous avez perdu !";
+                statusLabel.setText(status);
+                Platform.runLater(() -> showGameEndDialog("Défaite", "Vous avez perdu la partie."));
+            }
+            break;
+
+        case DRAW:
+            status = "Match nul !";
+            statusLabel.setText(status);
+            Platform.runLater(() -> showGameEndDialog("Match nul", "La partie s'est terminée sur un match nul !"));
+            break;
+
+        default:
+            status = "État inconnu";
+            statusLabel.setText(status);
+    }
+}
+
+/**
+ * Affiche une boîte de dialogue à la fin d'une partie avec option de rejouer
+ */
+private void showGameEndDialog(String title, String message) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.setTitle(title);
+    alert.setHeaderText(null);
+    alert.setContentText(message + "\n\nQue souhaitez-vous faire ?");
+    
+    // Ajouter des boutons personnalisés
+    ButtonType rejouerBtn = new ButtonType("Nouvelle partie");
+    ButtonType continuerBtn = new ButtonType("Continuer");
+    ButtonType menuBtn = new ButtonType("Retour au menu");
+    
+    alert.getButtonTypes().setAll(rejouerBtn, continuerBtn, menuBtn);
+    
+    // Attendre la réponse de l'utilisateur
+    alert.showAndWait().ifPresent(response -> {
+        if (response == rejouerBtn) {
+            // Demander une réinitialisation au serveur
+            try {
+                GameCommand resetCommand = GameCommand.createResetGameCommand(playerId);
+                GameProtocol.sendCommand(resetCommand, socket.getOutputStream());
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Erreur lors de l'envoi de la commande de réinitialisation", e);
+                disconnect();
+            }
+        } else if (response == menuBtn) {
+            // Retourner au menu principal
+            handleBackToMenuButton();
+        }
+        // Si continuer, ne rien faire
+    });
+}
     /**
      * Affiche une boîte de dialogue d'alerte
      *

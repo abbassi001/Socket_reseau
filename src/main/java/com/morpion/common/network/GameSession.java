@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import com.morpion.model.GameState;
 import com.morpion.model.Move;
 import com.morpion.model.Player;
+import com.morpion.server.view.ServerMonitor;
 
 /**
  * Représente une session de jeu côté serveur.
@@ -25,17 +26,37 @@ public class GameSession {
     private final GameState gameState;
     private final ConcurrentHashMap<String, ClientHandler> clients;
     private final ExecutorService executorService;
+    private ServerMonitor serverMonitor; // Moniteur serveur pour afficher les détails
     
     /**
      * Constructeur de la session de jeu
      */
     public GameSession() {
+        this(null);
+    }
+    
+    /**
+     * Constructeur de la session de jeu avec moniteur
+     * 
+     * @param serverMonitor Le moniteur serveur pour afficher les détails
+     */
+    public GameSession(ServerMonitor serverMonitor) {
         this.sessionId = UUID.randomUUID().toString();
         this.gameState = new GameState();
         this.clients = new ConcurrentHashMap<>();
         this.executorService = Executors.newCachedThreadPool();
+        this.serverMonitor = serverMonitor;
         
-        LOGGER.log(Level.INFO, "Nouvelle session de jeu cr\u00e9\u00e9e : {0}", sessionId);
+        LOGGER.log(Level.INFO, "Nouvelle session de jeu créée : {0}", sessionId);
+    }
+    
+    /**
+     * Définit le moniteur serveur
+     * 
+     * @param serverMonitor Le moniteur serveur
+     */
+    public void setServerMonitor(ServerMonitor serverMonitor) {
+        this.serverMonitor = serverMonitor;
     }
     
     /**
@@ -51,7 +72,13 @@ public class GameSession {
         clients.put(clientId, clientHandler);
         executorService.submit(clientHandler);
         
-        LOGGER.log(Level.INFO, "Nouveau client connect\u00e9 : {0}", clientId);
+        LOGGER.log(Level.INFO, "Nouveau client connecté : {0} depuis {1}", 
+                new Object[]{clientId, socket.getInetAddress().getHostAddress()});
+        
+        // Log dans le moniteur serveur (sans le nom car pas encore disponible)
+        if (serverMonitor != null) {
+            serverMonitor.addLogMessage("Nouveau client connecté depuis " + socket.getInetAddress().getHostAddress());
+        }
     }
     
     /**
@@ -65,7 +92,7 @@ public class GameSession {
         clients.clear();
         executorService.shutdown();
         
-        LOGGER.log(Level.INFO, "Session ferm\u00e9e : {0}", sessionId);
+        LOGGER.log(Level.INFO, "Session fermée : {0}", sessionId);
     }
     
     /**
@@ -77,6 +104,12 @@ public class GameSession {
         for (ClientHandler client : clients.values()) {
             try {
                 client.sendCommand(command);
+                
+                // Log dans le moniteur serveur
+                if (serverMonitor != null) {
+                    serverMonitor.logCommand(client.getClientId(), "SEND", command.getType().toString(), 
+                            "Diffusion à tous les clients");
+                }
             } catch (IOException e) {
                 LOGGER.log(Level.WARNING, "Erreur lors de l'envoi d'une commande au client : " + client.getClientId(), e);
             }
@@ -94,8 +127,28 @@ public class GameSession {
         ClientHandler client = clients.get(clientId);
         if (client != null) {
             client.sendCommand(command);
+            
+            // Log dans le moniteur serveur
+            if (serverMonitor != null) {
+                String details = "";
+                switch (command.getType()) {
+                    case CONNECT_ACK:
+                        details = "Joueur: " + command.getPlayer().getPlayerNumber() + 
+                                  ", Nom: " + command.getPlayer().getName();
+                        break;
+                    case GAME_STATE:
+                        details = "État: " + command.getGameState().getStatus();
+                        break;
+                    case ERROR:
+                        details = "Message: " + command.getMessage();
+                        break;
+                    default:
+                        details = "Type: " + command.getType();
+                }
+                serverMonitor.logCommand(clientId, "SEND", command.getType().toString(), details);
+            }
         } else {
-            LOGGER.log(Level.WARNING, "Tentative d''envoi d''une commande \u00e0 un client inexistant : {0}", clientId);
+            LOGGER.log(Level.WARNING, "Tentative d''envoi d''une commande à un client inexistant : {0}", clientId);
         }
     }
     
@@ -106,6 +159,26 @@ public class GameSession {
      * @param command La commande reçue
      */
     private void processCommand(String clientId, GameCommand command) {
+        // Log dans le moniteur serveur
+        if (serverMonitor != null) {
+            String details = "";
+            switch (command.getType()) {
+                case CONNECT:
+                    details = "Nom: " + command.getPlayer().getName();
+                    break;
+                case MOVE:
+                    details = "Ligne: " + command.getMove().getRow() + 
+                              ", Colonne: " + command.getMove().getCol();
+                    break;
+                case CHAT_MESSAGE:
+                    details = "Message: " + command.getMessage();
+                    break;
+                default:
+                    details = "Type: " + command.getType();
+            }
+            serverMonitor.logCommand(clientId, "RECEIVE", command.getType().toString(), details);
+        }
+        
         try {
             switch (command.getType()) {
                 case CONNECT:
@@ -129,7 +202,7 @@ public class GameSession {
                     break;
                 
                 default:
-                    LOGGER.log(Level.WARNING, "Commande non g\u00e9r\u00e9e : {0}", command.getType());
+                    LOGGER.log(Level.WARNING, "Commande non gérée : {0}", command.getType());
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Erreur lors du traitement d'une commande", e);
@@ -152,6 +225,16 @@ public class GameSession {
         Player player = command.getPlayer();
         player.setId(clientId);
         
+        // Récupérer l'adresse du client
+        Socket clientSocket = clients.get(clientId).getSocket();
+        String clientAddress = clientSocket.getInetAddress().getHostAddress();
+        
+        // Informer le moniteur du nouveau client
+        if (serverMonitor != null) {
+            serverMonitor.addClient(clientId, player.getName(), clientAddress);
+            serverMonitor.addLogMessage("Joueur " + player.getName() + " s'est connecté depuis " + clientAddress);
+        }
+        
         // Attribuer un numéro de joueur
         if (gameState.getPlayer1Id() == null) {
             player.setPlayerNumber(1);
@@ -171,7 +254,12 @@ public class GameSession {
         // Envoyer l'état du jeu à tous les clients
         broadcastCommand(GameCommand.createGameStateCommand(gameState));
         
-        LOGGER.log(Level.INFO, "Joueur connect\u00e9 : {0}", player);
+        // Mettre à jour l'état du jeu dans le moniteur
+        if (serverMonitor != null) {
+            serverMonitor.updateGameState(gameState.toString());
+        }
+        
+        LOGGER.log(Level.INFO, "Joueur connecté : {0}", player);
     }
     
     /**
@@ -187,12 +275,23 @@ public class GameSession {
         ClientHandler client = clients.remove(clientId);
         if (client != null) {
             client.close();
+            
+            // Mettre à jour le moniteur serveur
+            if (serverMonitor != null) {
+                serverMonitor.removeClient(clientId);
+                serverMonitor.addLogMessage("Joueur déconnecté : " + clientId);
+            }
         }
         
         // Informer les autres clients
         broadcastCommand(GameCommand.createGameStateCommand(gameState));
         
-        LOGGER.log(Level.INFO, "Joueur d\u00e9connect\u00e9 : {0}", clientId);
+        // Mettre à jour l'état du jeu dans le moniteur
+        if (serverMonitor != null) {
+            serverMonitor.updateGameState(gameState.toString());
+        }
+        
+        LOGGER.log(Level.INFO, "Joueur déconnecté : {0}", clientId);
     }
     
     /**
@@ -208,11 +307,43 @@ public class GameSession {
         if (valid) {
             // Diffuser l'état du jeu mis à jour
             broadcastCommand(GameCommand.createGameStateCommand(gameState));
-            LOGGER.log(Level.INFO, "Mouvement effectu\u00e9 : {0}", move);
+            
+            // Mettre à jour l'état du jeu dans le moniteur
+            if (serverMonitor != null) {
+                serverMonitor.updateGameState(gameState.toString());
+                serverMonitor.addLogMessage("Mouvement effectué par " + clientId + 
+                        " en (" + move.getRow() + "," + move.getCol() + ")");
+                
+                // Vérifier si le jeu est terminé
+                if (gameState.getStatus() != GameState.GameStatus.IN_PROGRESS) {
+                    String resultMessage = "La partie est terminée : ";
+                    switch (gameState.getStatus()) {
+                        case PLAYER1_WON:
+                            resultMessage += "Joueur 1 a gagné !";
+                            break;
+                        case PLAYER2_WON:
+                            resultMessage += "Joueur 2 a gagné !";
+                            break;
+                        case DRAW:
+                            resultMessage += "Match nul !";
+                            break;
+                        default:
+                            resultMessage += "Statut inconnu";
+                    }
+                    serverMonitor.addLogMessage(resultMessage);
+                }
+            }
+            
+            LOGGER.log(Level.INFO, "Mouvement effectué : {0}", move);
         } else {
             // Informer le client que le mouvement est invalide
             try {
                 sendCommand(clientId, GameCommand.createErrorCommand("Mouvement invalide"));
+                
+                if (serverMonitor != null) {
+                    serverMonitor.addLogMessage("Mouvement invalide tenté par " + clientId + 
+                            " en (" + move.getRow() + "," + move.getCol() + ")");
+                }
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Erreur lors de l'envoi d'une commande d'erreur", e);
             }
@@ -225,6 +356,13 @@ public class GameSession {
     private void handleResetGame() {
         gameState.resetGame();
         broadcastCommand(GameCommand.createGameStateCommand(gameState));
+        
+        // Mettre à jour l'état du jeu dans le moniteur
+        if (serverMonitor != null) {
+            serverMonitor.updateGameState(gameState.toString());
+            serverMonitor.addLogMessage("Jeu réinitialisé");
+        }
+        
         LOGGER.info("Jeu réinitialisé");
     }
     
@@ -236,7 +374,14 @@ public class GameSession {
     private void handleChatMessage(GameCommand command) {
         // Rediffuser le message à tous les clients
         broadcastCommand(command);
-        LOGGER.log(Level.INFO, "Message de chat re\u00e7u de {0} : {1}", new Object[]{command.getSenderId(), command.getMessage()});
+        
+        // Log dans le moniteur serveur
+        if (serverMonitor != null) {
+            serverMonitor.addLogMessage("Message de chat de " + command.getSenderId() + ": " + command.getMessage());
+        }
+        
+        LOGGER.log(Level.INFO, "Message de chat reçu de {0} : {1}", 
+                new Object[]{command.getSenderId(), command.getMessage()});
     }
     
     /**
@@ -267,6 +412,15 @@ public class GameSession {
          */
         public String getClientId() {
             return clientId;
+        }
+        
+        /**
+         * Obtient la socket du client
+         * 
+         * @return La socket du client
+         */
+        public Socket getSocket() {
+            return socket;
         }
         
         /**

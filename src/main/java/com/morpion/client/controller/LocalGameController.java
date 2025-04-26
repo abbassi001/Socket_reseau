@@ -14,6 +14,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -215,35 +216,69 @@ private void drawO(Pane tile) {
 // N'oubliez pas d'ajouter l'import:
 // import com.morpion.client.view.GameSymbols;
     
-    /**
-     * Met à jour le statut du jeu
-     */
-    private void updateStatus() {
-        String status;
-        
-        switch (gameState.getStatus()) {
-            case IN_PROGRESS:
-                status = "Tour du Joueur " + (gameState.getCurrentPlayer() == 1 ? "X" : "O");
-                break;
-                
-            case PLAYER1_WON:
-                status = "Le Joueur X a gagné !";
-                break;
-                
-            case PLAYER2_WON:
-                status = "Le Joueur O a gagné !";
-                break;
-                
-            case DRAW:
-                status = "Match nul !";
-                break;
-                
-            default:
-                status = "État inconnu";
-        }
-        
-        statusLabel.setText(status);
+private void updateStatus() {
+    String status;
+    
+    switch (gameState.getStatus()) {
+        case IN_PROGRESS:
+            status = "Tour du Joueur " + (gameState.getCurrentPlayer() == 1 ? "X" : "O");
+            statusLabel.setText(status);
+            break;
+            
+        case PLAYER1_WON:
+            status = "Le Joueur X a gagné !";
+            statusLabel.setText(status);
+            // Afficher une boîte de dialogue
+            Platform.runLater(() -> showGameEndDialog("Victoire !", "Le Joueur X a gagné la partie !"));
+            break;
+            
+        case PLAYER2_WON:
+            status = "Le Joueur O a gagné !";
+            statusLabel.setText(status);
+            // Afficher une boîte de dialogue
+            Platform.runLater(() -> showGameEndDialog("Victoire !", "Le Joueur O a gagné la partie !"));
+            break;
+            
+        case DRAW:
+            status = "Match nul !";
+            statusLabel.setText(status);
+            // Afficher une boîte de dialogue
+            Platform.runLater(() -> showGameEndDialog("Match nul", "La partie s'est terminée sur un match nul !"));
+            break;
+            
+        default:
+            status = "État inconnu";
+            statusLabel.setText(status);
     }
+}
+
+/**
+ * Affiche une boîte de dialogue à la fin d'une partie avec option de rejouer
+ */
+private void showGameEndDialog(String title, String message) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.setTitle(title);
+    alert.setHeaderText(null);
+    alert.setContentText(message + "\n\nVoulez-vous jouer une autre partie ?");
+    
+    // Ajouter des boutons personnalisés
+    ButtonType rejouerBtn = new ButtonType("Rejouer");
+    ButtonType menuBtn = new ButtonType("Retour au menu");
+    
+    alert.getButtonTypes().setAll(rejouerBtn, menuBtn);
+    
+    // Attendre la réponse de l'utilisateur
+    alert.showAndWait().ifPresent(response -> {
+        if (response == rejouerBtn) {
+            // Réinitialiser la partie
+            gameState.resetGame();
+            updateUI();
+        } else if (response == menuBtn) {
+            // Retourner au menu principal
+            handleBackToMenuButton();
+        }
+    });
+}
     
     /**
      * Affiche une boîte de dialogue d'alerte
