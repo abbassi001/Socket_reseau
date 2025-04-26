@@ -1,0 +1,64 @@
+Continuons l'implémentation du contrôleur client :
+
+Maintenant, créons l'interface GameClient que nous avons utilisée dans notre contrôleur :
+
+Créons maintenant le fichier FXML pour l'interface du client :
+
+Enfin, créons un fichier CSS pour styler notre interface :
+
+Voilà ! Nous avons implémenté un jeu de morpion en réseau en utilisant une architecture MVC et des sockets en Java. Voici un résumé de notre implémentation :
+
+## Structure du projet
+- **Architecture MVC** : Le projet est structuré en suivant le modèle Modèle-Vue-Contrôleur.
+- **Communication réseau** : Les communications entre client et serveur sont gérées par des sockets Java.
+- **Interface graphique** : L'interface utilisateur est créée avec JavaFX et FXML.
+
+## Composants principaux
+
+### Modèle
+1. **GameState** : Représente l'état du jeu (grille, joueur actuel, statut).
+2. **Player** : Représente un joueur (identifiant, nom, numéro).
+3. **Move** : Représente un mouvement effectué par un joueur.
+
+### Communication réseau
+1. **GameCommand** : Représente une commande échangée entre client et serveur.
+2. **GameProtocol** : Fournit des méthodes pour sérialiser/désérialiser les commandes.
+3. **GameSession** : Gère une session de jeu côté serveur, avec plusieurs clients.
+4. **NetworkUtils** : Classe utilitaire pour les opérations réseau.
+
+### Côté serveur
+1. **ServerMain** : Point d'entrée de l'application serveur.
+2. **GameServerController** : Contrôleur pour l'interface du serveur.
+3. **ServerMonitor** : Interface pour la surveillance du serveur.
+
+### Côté client
+1. **ClientMain** : Point d'entrée de l'application client.
+2. **GameClientController** : Contrôleur pour l'interface du client.
+3. **GameClient** : Interface pour le client.
+
+### Interface utilisateur
+1. **server-monitor.fxml** : Interface FXML pour le serveur.
+2. **game-client.fxml** : Interface FXML pour le client.
+3. **styles.css** : Styles CSS pour les interfaces.
+
+## Fonctionnalités implémentées
+- Connexion/déconnexion au serveur
+- Jeu de morpion à deux joueurs
+- Chat entre les joueurs
+- Réinitialisation de la partie
+- Interface utilisateur intuitive
+- Gestion des erreurs et des situations exceptionnelles
+
+## Comment utiliser l'application
+1. Lancez d'abord le serveur (ServerMain)
+2. Lancez ensuite un ou deux clients (ClientMain)
+3. Connectez-vous au serveur depuis les clients
+4. Jouez au morpion !
+
+Ce projet peut être encore amélioré avec des fonctionnalités supplémentaires comme :
+- Système de matchmaking
+- Sauvegarde des scores
+- Plus d'options de personnalisation
+- Support pour plusieurs parties simultanées
+
+N'hésitez pas à me poser des questions si vous avez besoin d'éclaircissements sur certaines parties du code ou si vous souhaitez des explications supplémentaires !

@@ -1,0 +1,96 @@
+/* Styles généraux */
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-background-color: #f5f5f5;
+}
+
+/* Styles pour le tableau de jeu */
+.game-tile {
+    -fx-background-color: white;
+    -fx-border-color: #ddd;
+    -fx-border-width: 1;
+    -fx-min-width: 60px;
+    -fx-min-height: 60px;
+    -fx-pref-width: 66px;
+    -fx-pref-height: 66px;
+    -fx-cursor: hand;
+}
+
+.game-tile:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+/* Styles pour les boutons */
+.button {
+    -fx-background-color: #4285f4;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 15px;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.button:hover {
+    -fx-background-color: #2a75f3;
+}
+
+.button:pressed {
+    -fx-background-color: #1a65e3;
+}
+
+.button:disabled {
+    -fx-background-color: #cccccc;
+    -fx-text-fill: #666666;
+}
+
+/* Styles pour les champs de texte */
+.text-field {
+    -fx-background-color: white;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-padding: 5;
+}
+
+.text-field:focused {
+    -fx-border-color: #4285f4;
+}
+
+/* Styles pour les zones de texte */
+.text-area {
+    -fx-background-color: white;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+}
+
+.text-area .content {
+    -fx-background-color: white;
+}
+
+.text-area:focused .content {
+    -fx-background-color: white;
+}
+
+/* Styles pour les titres de panneau */
+.titled-pane > .title {
+    -fx-background-color: #4285f4;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.titled-pane > .title > .arrow-button .arrow {
+    -fx-background-color: white;
+}
+
+/* Styles pour les libellés de statut */
+#statusLabel {
+    -fx-padding: 5;
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-text-fill: #333;
+    -fx-alignment: center;
+    -fx-min-width: 200px;
+}
