@@ -57,6 +57,8 @@ public class MainMenuController {
 
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Erreur lors du chargement de l'interface du jeu contre l'IA", e);
+            e.printStackTrace();
+
         }
     }
 

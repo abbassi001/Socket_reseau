@@ -3,7 +3,11 @@ package com.morpion.client.view;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.concurrent.Worker;
 import netscape.javascript.JSObject;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Implémentation du chat utilisant WebView pour les animations avancées
@@ -13,13 +17,36 @@ public class ChatWebView extends BorderPane {
     private WebView webView;
     private WebEngine webEngine;
     private ChatBridge bridge;
+    private boolean jsLoaded = false;
+    
+    // File d'attente pour les messages en attente de chargement
+    private Queue<MessageInfo> pendingMessages = new LinkedList<>();
+    
+    private static class MessageInfo {
+        String message;
+        boolean isSelf;
+        
+        MessageInfo(String message, boolean isSelf) {
+            this.message = message;
+            this.isSelf = isSelf;
+        }
+    }
     
     /**
      * Constructeur de la vue du chat WebView
      */
     public ChatWebView() {
-        // Créer le WebView
+        // Créer le WebView avec des dimensions explicites
         webView = new WebView();
+        webView.setPrefWidth(350);
+        webView.setPrefHeight(300);
+        webView.setMinWidth(300);
+        webView.setMinHeight(250);
+        
+        // Style pour s'assurer que le WebView est visible
+        webView.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px;");
+        this.setStyle("-fx-background-color: white; -fx-border-color: #3498db; -fx-border-width: 1px;");
+        
         webEngine = webView.getEngine();
         
         // Créer le pont Java-JavaScript
@@ -29,25 +56,52 @@ public class ChatWebView extends BorderPane {
         String htmlContent = createHtmlContent();
         webEngine.loadContent(htmlContent);
         
-        // Configurer le pont une fois que la page est chargée
+        // Configurer le pont et les fonctions JS une fois la page chargée
         webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
-            if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
-                JSObject window = (JSObject) webEngine.executeScript("window");
-                window.setMember("javaBridge", bridge);
+            if (newState == Worker.State.SUCCEEDED) {
+                try {
+                    // Définir le pont Java-JavaScript
+                    JSObject window = (JSObject) webEngine.executeScript("window");
+                    window.setMember("javaBridge", bridge);
+                    
+                    // Vérifier que les fonctions JavaScript sont disponibles
+                    Object result = webEngine.executeScript(
+                            "if(typeof addMessage === 'function') { true } else { false }");
+                    
+                    if (result instanceof Boolean && (Boolean)result) {
+                        // Marquer comme chargé
+                        jsLoaded = true;
+                        
+                        System.out.println("WebView et JavaScript chargés avec succès!");
+                        
+                        // Traiter les messages en attente
+                        processPendingMessages();
+                    } else {
+                        System.err.println("Les fonctions JavaScript ne sont pas disponibles!");
+                        // Recharger le contenu en cas d'erreur
+                        reloadContent();
+                    }
+                } catch (Exception e) {
+                    System.err.println("Erreur lors de l'initialisation du JavaScript: " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
         });
         
         // Ajouter WebView à ce panneau
         setCenter(webView);
     }
-
     
     /**
      * Affiche l'indicateur de frappe
      */
     public void showTypingIndicator() {
-        if (webEngine != null) {
-            webEngine.executeScript("showTypingIndicator();");
+        if (jsLoaded) {
+            try {
+                webEngine.executeScript("if(typeof showTypingIndicator === 'function') { showTypingIndicator(); true; } else { false; }");
+            } catch (Exception e) {
+                System.err.println("Erreur lors de l'affichage de l'indicateur de frappe: " + e.getMessage());
+            }
         }
     }
     
@@ -55,8 +109,12 @@ public class ChatWebView extends BorderPane {
      * Masque l'indicateur de frappe
      */
     public void hideTypingIndicator() {
-        if (webEngine != null) {
-            webEngine.executeScript("hideTypingIndicator();");
+        if (jsLoaded) {
+            try {
+                webEngine.executeScript("if(typeof hideTypingIndicator === 'function') { hideTypingIndicator(); true; } else { false; }");
+            } catch (Exception e) {
+                System.err.println("Erreur lors du masquage de l'indicateur de frappe: " + e.getMessage());
+            }
         }
     }
     
@@ -64,8 +122,15 @@ public class ChatWebView extends BorderPane {
      * Efface tous les messages
      */
     public void clearChat() {
-        if (webEngine != null) {
-            webEngine.executeScript("clearChat();");
+        if (jsLoaded) {
+            try {
+                webEngine.executeScript("if(typeof clearChat === 'function') { clearChat(); true; } else { false; }");
+                pendingMessages.clear();
+            } catch (Exception e) {
+                System.err.println("Erreur lors de l'effacement du chat: " + e.getMessage());
+            }
+        } else {
+            pendingMessages.clear();
         }
     }
     
@@ -78,6 +143,91 @@ public class ChatWebView extends BorderPane {
                  .replace("'", "\\'")
                  .replace("\n", "\\n")
                  .replace("\r", "\\r");
+    }
+    
+    /**
+     * Ajoute un message au chat
+     */
+    public void addMessage(String message, boolean isSelf) {
+        System.out.println("ChatWebView: tentative d'ajout du message: " + message);
+        
+        // Si JavaScript n'est pas encore chargé, mettre en file d'attente
+        if (!jsLoaded) {
+            System.out.println("JavaScript pas encore chargé, message mis en file d'attente: " + message);
+            pendingMessages.add(new MessageInfo(message, isSelf));
+            return;
+        }
+        
+        if (webEngine != null) {
+            final String escapedMessage = escapeJavaScript(message);
+            final String script = "if(typeof addMessage === 'function') { " +
+                                 "addMessage('" + escapedMessage + "', " + isSelf + "); " +
+                                 "true; } else { false; }";
+                                 
+            System.out.println("Exécution du script JS: " + script);
+            
+            try {
+                Object result = webEngine.executeScript(script);
+                System.out.println("Résultat de l'exécution: " + result);
+                
+                if (result instanceof Boolean && !(Boolean)result) {
+                    System.err.println("La fonction addMessage n'est pas disponible!");
+                    // Forcer un rechargement de la page
+                    reloadContent();
+                } else {
+                    System.out.println("Message ajouté avec succès: " + message);
+                }
+            } catch (Exception e) {
+                System.err.println("Erreur lors de l'ajout du message: " + e.getMessage());
+                e.printStackTrace();
+                
+                // Recharger le contenu en cas d'erreur
+                reloadContent();
+            }
+        } else {
+            System.err.println("WebEngine est null!");
+        }
+    }
+    
+    /**
+     * Traite les messages en attente
+     */
+    private void processPendingMessages() {
+        if (jsLoaded && !pendingMessages.isEmpty()) {
+            System.out.println("Traitement des messages en attente (" + pendingMessages.size() + ")");
+            while (!pendingMessages.isEmpty()) {
+                MessageInfo info = pendingMessages.poll();
+                addMessage(info.message, info.isSelf);
+            }
+        }
+    }
+    
+    /**
+     * Recharge le contenu du WebView en cas de problème
+     */
+    private void reloadContent() {
+        System.out.println("Rechargement du contenu WebView...");
+        webEngine.loadContent(createHtmlContent());
+        
+        webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+            if (newState == Worker.State.SUCCEEDED) {
+                try {
+                    // Redéfinir le pont Java-JavaScript
+                    JSObject window = (JSObject) webEngine.executeScript("window");
+                    window.setMember("javaBridge", bridge);
+                    
+                    // Marquer comme chargé
+                    jsLoaded = true;
+                    
+                    // Traiter les messages en attente
+                    processPendingMessages();
+                    
+                    System.out.println("WebView rechargé avec succès!");
+                } catch (Exception e) {
+                    System.err.println("Erreur lors du rechargement: " + e.getMessage());
+                }
+            }
+        });
     }
     
     /**
@@ -124,6 +274,7 @@ public class ChatWebView extends BorderPane {
                "            width: 100%;\n" +
                "            display: flex;\n" +
                "            flex-direction: column;\n" +
+               "            border: 1px solid #ccc;\n" +
                "        }\n" +
                "        .chat-messages {\n" +
                "            flex-grow: 1;\n" +
@@ -132,6 +283,7 @@ public class ChatWebView extends BorderPane {
                "            display: flex;\n" +
                "            flex-direction: column;\n" +
                "            gap: 10px;\n" +
+               "            background-color: white;\n" +
                "        }\n" +
                "        .message {\n" +
                "            max-width: 80%;\n" +
@@ -141,6 +293,7 @@ public class ChatWebView extends BorderPane {
                "            animation-duration: 0.3s;\n" +
                "            animation-fill-mode: both;\n" +
                "            word-wrap: break-word;\n" +
+               "            margin: 5px 0;\n" +
                "        }\n" +
                "        .message-self {\n" +
                "            align-self: flex-end;\n" +
@@ -149,6 +302,7 @@ public class ChatWebView extends BorderPane {
                "            border-bottom-right-radius: 5px;\n" +
                "            animation-name: slideInRight;\n" +
                "            box-shadow: 0 2px 5px rgba(0,0,0,0.1);\n" +
+               "            text-align: right;\n" +
                "        }\n" +
                "        .message-other {\n" +
                "            align-self: flex-start;\n" +
@@ -157,6 +311,7 @@ public class ChatWebView extends BorderPane {
                "            border-bottom-left-radius: 5px;\n" +
                "            animation-name: slideInLeft;\n" +
                "            box-shadow: 0 2px 5px rgba(0,0,0,0.1);\n" +
+               "            text-align: left;\n" +
                "        }\n" +
                "        .message-content {\n" +
                "            margin-bottom: 5px;\n" +
@@ -175,6 +330,7 @@ public class ChatWebView extends BorderPane {
                "            display: flex;\n" +
                "            align-items: center;\n" +
                "            animation: fadeIn 0.3s;\n" +
+               "            margin: 5px 0;\n" +
                "        }\n" +
                "        .typing-dots {\n" +
                "            display: flex;\n" +
@@ -192,6 +348,14 @@ public class ChatWebView extends BorderPane {
                "        }\n" +
                "        .dot:nth-child(3) {\n" +
                "            animation-delay: 0.4s;\n" +
+               "        }\n" +
+               "        .test-element {\n" +
+               "            padding: 10px;\n" +
+               "            margin: 10px;\n" +
+               "            background-color: #e74c3c;\n" +
+               "            color: white;\n" +
+               "            border-radius: 5px;\n" +
+               "            text-align: center;\n" +
                "        }\n" +
                "        @keyframes bounce {\n" +
                "            0%, 60%, 100% {\n" +
@@ -244,11 +408,45 @@ public class ChatWebView extends BorderPane {
      * Définit le JavaScript du chat
      */
     private String getChatJavaScript() {
-        return "        const chatMessages = document.getElementById('chat-messages');\n" +
+        return "        // Attendre le chargement complet de la page\n" +
+               "        document.addEventListener('DOMContentLoaded', function() {\n" +
+               "            console.log('DOM chargé');\n" +
+               "        });\n" +
+               "\n" +
+               "        // Variables globales\n" +
+               "        const chatMessages = document.getElementById('chat-messages');\n" +
                "        let typingIndicator = null;\n" +
+               "\n" +
+               "        // Ajouter un élément visuel fixe pour test\n" +
+               "        window.onload = function() {\n" +
+               "            const testElement = document.createElement('div');\n" +
+               "            testElement.className = 'test-element';\n" +
+               "            testElement.textContent = 'CHAT INITIALISÉ';\n" +
+               "            document.body.appendChild(testElement);\n" +
+               "            \n" +
+               "            // Également ajouter directement au conteneur de messages\n" +
+               "            if (chatMessages) {\n" +
+               "                const testMsg = document.createElement('div');\n" +
+               "                testMsg.className = 'message message-other';\n" +
+               "                testMsg.innerHTML = '<div class=\"message-content\">Le chat est prêt!</div>' +\n" +
+               "                                    '<div class=\"message-time\">Système</div>';\n" +
+               "                chatMessages.appendChild(testMsg);\n" +
+               "            }\n" +
+               "            \n" +
+               "            // Notifier Java que la page est chargée\n" +
+               "            if (window.javaBridge) {\n" +
+               "                window.javaBridge.onMessageAdded('Le chat est prêt!', false);\n" +
+               "            }\n" +
+               "        };\n" +
+               "\n" +
+               "        // Indiquer que le JS est chargé\n" +
+               "        window.jsLoaded = true;\n" +
+               "        console.log('JS chargé');\n" +
                "\n" +
                "        // Fonction pour ajouter un message\n" +
                "        function addMessage(text, isSelf = true) {\n" +
+               "            console.log('Ajout de message:', text, 'isSelf:', isSelf);\n" +
+               "            \n" +
                "            // Supprimer l'indicateur de frappe s'il existe\n" +
                "            hideTypingIndicator();\n" +
                "            \n" +
@@ -262,6 +460,12 @@ public class ChatWebView extends BorderPane {
                "                <div class=\"message-content\">${text}</div>\n" +
                "                <div class=\"message-time\">${timeString}</div>\n" +
                "            `;\n" +
+               "            \n" +
+               "            // S'assurer que chatMessages existe\n" +
+               "            if (!chatMessages) {\n" +
+               "                console.error('Container de messages non trouvé!');\n" +
+               "                return false;\n" +
+               "            }\n" +
                "            \n" +
                "            chatMessages.appendChild(messageDiv);\n" +
                "            chatMessages.scrollTop = chatMessages.scrollHeight;\n" +
@@ -278,11 +482,20 @@ public class ChatWebView extends BorderPane {
                "            if (window.javaBridge) {\n" +
                "                window.javaBridge.onMessageAdded(text, isSelf);\n" +
                "            }\n" +
+               "            \n" +
+               "            console.log('Message ajouté avec succès');\n" +
+               "            return true;\n" +
                "        }\n" +
                "\n" +
                "        // Fonction pour afficher l'indicateur de frappe\n" +
                "        function showTypingIndicator() {\n" +
-               "            if (typingIndicator !== null) return;\n" +
+               "            if (typingIndicator !== null) return true;\n" +
+               "            \n" +
+               "            // S'assurer que chatMessages existe\n" +
+               "            if (!chatMessages) {\n" +
+               "                console.error('Container de messages non trouvé!');\n" +
+               "                return false;\n" +
+               "            }\n" +
                "            \n" +
                "            typingIndicator = document.createElement('div');\n" +
                "            typingIndicator.className = 'typing-indicator';\n" +
@@ -296,6 +509,7 @@ public class ChatWebView extends BorderPane {
                "            \n" +
                "            chatMessages.appendChild(typingIndicator);\n" +
                "            chatMessages.scrollTop = chatMessages.scrollHeight;\n" +
+               "            return true;\n" +
                "        }\n" +
                "\n" +
                "        // Fonction pour masquer l'indicateur de frappe\n" +
@@ -303,26 +517,29 @@ public class ChatWebView extends BorderPane {
                "            if (typingIndicator !== null && typingIndicator.parentNode) {\n" +
                "                typingIndicator.parentNode.removeChild(typingIndicator);\n" +
                "                typingIndicator = null;\n" +
+               "                return true;\n" +
                "            }\n" +
+               "            return false;\n" +
                "        }\n" +
                "\n" +
                "        // Fonction pour effacer tous les messages\n" +
                "        function clearChat() {\n" +
+               "            // S'assurer que chatMessages existe\n" +
+               "            if (!chatMessages) {\n" +
+               "                console.error('Container de messages non trouvé!');\n" +
+               "                return false;\n" +
+               "            }\n" +
+               "            \n" +
                "            while (chatMessages.firstChild) {\n" +
                "                chatMessages.removeChild(chatMessages.firstChild);\n" +
                "            }\n" +
                "            typingIndicator = null;\n" +
+               "            console.log('Chat effacé');\n" +
+               "            return true;\n" +
                "        }\n" +
                "\n" +
-               "        // Fonction pour simuler l'écriture\n" +
-               "        function simulateTyping() {\n" +
-               "            showTypingIndicator();\n" +
-               "            \n" +
-               "            setTimeout(() => {\n" +
-               "                hideTypingIndicator();\n" +
-               "                addMessage('Ceci est une réponse simulée.', false);\n" +
-               "            }, 2000);\n" +
-               "        }\n";
+               "        // Test pour voir si les fonctions sont correctement définies\n" +
+               "        console.log('Fonctions définies: addMessage, showTypingIndicator, hideTypingIndicator, clearChat');\n";
     }
     
     /**
@@ -333,10 +550,11 @@ public class ChatWebView extends BorderPane {
          * Méthode appelée par JavaScript quand un message est ajouté
          */
         public void onMessageAdded(String message, boolean isSelf) {
-            // Vous pouvez ajouter ici du code pour réagir à l'ajout d'un message
-            System.out.println("Message ajouté: " + message + " (envoyé par utilisateur: " + isSelf + ")");
+            System.out.println("Message ajouté (via bridge): " + message + 
+                              " (envoyé par utilisateur: " + isSelf + ")");
         }
     }
+    
     /**
      * Méthode pour obtenir le WebView
      * 
@@ -344,19 +562,5 @@ public class ChatWebView extends BorderPane {
      */
     public WebView getWebView() {
         return webView;
-    }
-    public void addMessage(String message, boolean isSelf) {
-        if (webEngine != null) {
-            String script = "addMessage('" + escapeJavaScript(message) + "', " + isSelf + ");";
-            System.out.println("Exécution du script JS: " + script);
-            try {
-                webEngine.executeScript(script);
-            } catch (Exception e) {
-                System.err.println("Erreur lors de l'exécution du script: " + e.getMessage());
-                e.printStackTrace();
-            }
-        } else {
-            System.err.println("WebEngine est null!");
-        }
     }
 }

@@ -563,3 +563,24 @@
     -fx-pref-height: 5;
     -fx-margin: 0 3;
 }
+
+.chat-sender {
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.chat-text {
+    -fx-font-size: 13px;
+}
+
+.own-message {
+    -fx-background-color: #DCF8C6;
+    -fx-padding: 8px;
+    -fx-background-radius: 8px;
+}
+
+.other-message {
+    -fx-background-color: #ECECEC;
+    -fx-padding: 8px;
+    -fx-background-radius: 8px;
+}
