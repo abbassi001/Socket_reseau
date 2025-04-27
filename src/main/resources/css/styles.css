@@ -10,21 +10,45 @@
     -fx-grey-dark: #9e9e9e;
     -fx-black: #333333;
     -fx-white: #ffffff;
+    -fx-accent: #2ecc71;
+    -fx-accent-light: #27ae60;
 }
 
 /* Styles généraux */
 .root {
     -fx-font-family: 'Segoe UI', Arial, sans-serif;
-    -fx-background-color: -fx-grey-light;
+    -fx-background-color: linear-gradient(to bottom, #ecf0f1, #bdc3c7);
+}
+
+/* Styles pour les libellés */
+.label {
+    -fx-text-fill: -fx-black;
+}
+
+/* Titres */
+.game-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to right, -fx-primary, -fx-primary-dark);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 2);
+}
+
+.game-subtitle {
+    -fx-font-size: 18px;
+    -fx-text-fill: -fx-primary-dark;
+    -fx-font-style: italic;
 }
 
 /* Styles pour les panneaux titrés */
 .titled-pane {
     -fx-animated: true;
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0, 0, 3);
 }
 
 .titled-pane > .title {
-    -fx-background-color: -fx-primary;
+    -fx-background-color: linear-gradient(to right, -fx-primary-light, -fx-primary);
     -fx-background-radius: 5 5 0 0;
     -fx-padding: 10 15;
 }
@@ -49,55 +73,60 @@
 }
 
 /* Styles pour le plateau de jeu */
+#boardGrid {
+    -fx-background-color: #e0e0e0;
+    -fx-padding: 10;
+    -fx-hgap: 5;
+    -fx-vgap: 5;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 3);
+    -fx-grid-lines-visible: false;
+}
+
 .game-tile {
-    -fx-background-color: -fx-white;
-    -fx-border-color: -fx-grey;
+    -fx-background-color: white;
+    -fx-border-color: -fx-primary-light;
     -fx-border-width: 2;
-    -fx-border-radius: 5;
-    -fx-background-radius: 5;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
     -fx-min-width: 70px;
     -fx-min-height: 70px;
     -fx-pref-width: 80px;
     -fx-pref-height: 80px;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
-    -fx-transition: -fx-background-color 0.2s;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+    -fx-transition: all 0.3s;
 }
 
 .game-tile:hover {
-    -fx-background-color: -fx-grey-light;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
-}
-
-#boardGrid {
     -fx-background-color: -fx-primary-light;
-    -fx-padding: 10;
-    -fx-background-radius: 10;
-    -fx-hgap: 10;
-    -fx-vgap: 10;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);
 }
 
 /* Styles pour les boutons */
 .button {
-    -fx-background-color: -fx-primary;
-    -fx-text-fill: -fx-white;
+    -fx-background-color: linear-gradient(to bottom, -fx-primary-light, -fx-primary);
+    -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-padding: 10 20;
     -fx-border-radius: 5;
-    -fx-background-radius: 5;
+    -fx-background-radius: 8;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 1);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 4);
+    -fx-transition: all 0.3s;
 }
 
 .button:hover {
-    -fx-background-color: -fx-primary-dark;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);
+    -fx-background-color: linear-gradient(to bottom, -fx-primary, -fx-primary-dark);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 6);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 .button:pressed {
-    -fx-background-color: -fx-primary-dark;
-    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 0);
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 3);
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
 }
 
 .button:disabled {
@@ -106,7 +135,7 @@
     -fx-effect: none;
 }
 
-/* Style pour le bouton de connexion */
+/* Style pour les boutons spécifiques */
 #connectButton {
     -fx-background-color: #27ae60;
 }
@@ -115,7 +144,6 @@
     -fx-background-color: #219653;
 }
 
-/* Style pour le bouton de déconnexion */
 #disconnectButton {
     -fx-background-color: -fx-secondary;
 }
@@ -124,64 +152,12 @@
     -fx-background-color: #c0392b;
 }
 
-/* Style pour le bouton de réinitialisation */
 #resetButton {
     -fx-background-color: #f39c12;
 }
 
 #resetButton:hover {
     -fx-background-color: #d35400;
-}
-
-/* Styles pour les champs de texte */
-.text-field {
-    -fx-background-color: -fx-white;
-    -fx-border-color: -fx-grey;
-    -fx-border-radius: 5;
-    -fx-background-radius: 5;
-    -fx-padding: 8;
-    -fx-prompt-text-fill: -fx-grey-dark;
-}
-
-.text-field:focused {
-    -fx-border-color: -fx-primary;
-    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.3), 5, 0, 0, 0);
-}
-
-/* Styles pour les zones de texte */
-.text-area {
-    -fx-background-color: -fx-white;
-    -fx-border-color: -fx-grey;
-    -fx-border-radius: 5;
-    -fx-background-radius: 5;
-    -fx-font-size: 13px;
-}
-
-.text-area .content {
-    -fx-background-color: -fx-white;
-}
-
-.text-area:focused .content {
-    -fx-background-color: -fx-white;
-}
-
-/* Styles pour les libellés */
-.label {
-    -fx-text-fill: -fx-black;
-}
-
-/* Style pour l'étiquette de statut */
-#statusLabel {
-    -fx-padding: 10;
-    -fx-background-color: -fx-grey-light;
-    -fx-border-color: -fx-grey;
-    -fx-border-radius: 5;
-    -fx-background-radius: 5;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-alignment: center;
-    -fx-min-width: 250px;
-    -fx-text-fill: -fx-black;
 }
 
 /* Style pour l'écran d'accueil */
@@ -215,134 +191,14 @@
     -fx-background-color: #e74c3c;
 }
 
-.game-title {
-    -fx-font-size: 32px;
-    -fx-font-weight: bold;
-    -fx-text-fill: -fx-primary-dark;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 2, 0, 0, 1);
-}
-
-.game-subtitle {
-    -fx-font-size: 16px;
-    -fx-text-fill: -fx-grey-dark;
-    -fx-font-style: italic;
-}
-
-/* Animation pour les tuiles du plateau */
-.game-tile {
-    -fx-transition-duration: 0.2s;
-}
-
-/* Style pour les messages de chat */
-#chatTextArea {
-    -fx-font-size: 13px;
-}
-
-/* Style pour le panneau latéral du chat */
-#chatVBox {
-    -fx-spacing: 10;
-}
-
-/* Améliorer l'apparence de la grille */
-#boardGrid {
-    -fx-grid-lines-visible: false;
-}
-
-.game-tile {
-    -fx-background-color: white;
-    -fx-border-color: #cccccc;
-    -fx-border-width: 1;
-    -fx-min-width: 70px;
-    -fx-min-height: 70px;
-    -fx-pref-width: 80px;
-    -fx-pref-height: 80px;
-}
-
-#boardGrid {
-    -fx-background-color: #e0e0e0;
-    -fx-padding: 10;
-    -fx-hgap: 5;
-    -fx-vgap: 5;
-}
-
-
-/* Thème amélioré avec des dégradés et des effets de profondeur */
-* {
-    -fx-primary: #3498db;
-    -fx-primary-light: #5dade2;
-    -fx-primary-dark: #2980b9;
-    -fx-secondary: #e74c3c;
-    -fx-secondary-light: #f1948a;
-    -fx-accent: #2ecc71;
-    -fx-accent-light: #27ae60;
-}
-
-.root {
-    -fx-font-family: 'Segoe UI', Arial, sans-serif;
-    -fx-background-color: linear-gradient(to bottom, #ecf0f1, #bdc3c7);
-}
-
-/* Effets 3D pour les boutons */
-.button {
-    -fx-background-color: 
-        linear-gradient(to bottom, -fx-primary-light, -fx-primary);
-    -fx-background-radius: 8;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 4);
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-transition: all 0.3s;
-}
-
-.button:hover {
-    -fx-background-color: 
-        linear-gradient(to bottom, -fx-primary, -fx-primary-dark);
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 6);
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
-}
-
-.button:pressed {
-    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 3);
-    -fx-scale-x: 0.95;
-    -fx-scale-y: 0.95;
-}
-
-/* Améliorations pour le plateau de jeu */
-.game-tile {
-    -fx-background-color: white;
-    -fx-border-color: -fx-primary-light;
-    -fx-border-width: 2;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
-    -fx-transition: all 0.3s;
-}
-
-.game-tile:hover {
-    -fx-background-color: -fx-primary-light;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);
-}
-
-/* Styles de titre élégants */
-.game-title {
-    -fx-font-size: 32px;
-    -fx-font-weight: bold;
-    -fx-text-fill: linear-gradient(to right, -fx-primary, -fx-primary-dark);
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 2);
-}
-
-.game-subtitle {
-    -fx-font-size: 18px;
-    -fx-text-fill: -fx-primary-dark;
-    -fx-font-style: italic;
-}
-
-/* Zones de texte avec des effets subtils */
+/* Styles pour les champs de texte */
 .text-field, .text-area {
     -fx-background-color: white;
-    -fx-background-radius: 8;
-    -fx-border-color: -fx-primary-light;
+    -fx-border-color: -fx-grey;
     -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 8;
+    -fx-prompt-text-fill: -fx-grey-dark;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
 }
 
@@ -351,21 +207,25 @@
     -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.3), 5, 0, 0, 2);
 }
 
-/* Conteneurs avec des bordures arrondies et des ombres */
-.titled-pane {
-    -fx-background-color: white;
-    -fx-background-radius: 10;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0, 0, 3);
+.text-area .content {
+    -fx-background-color: -fx-white;
 }
 
-.titled-pane > .title {
-    -fx-background-color: 
-        linear-gradient(to right, -fx-primary-light, -fx-primary);
-    -fx-text-fill: white;
+/* Style pour l'étiquette de statut */
+#statusLabel {
+    -fx-padding: 10;
+    -fx-background-color: -fx-grey-light;
+    -fx-border-color: -fx-grey;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-min-width: 250px;
+    -fx-text-fill: -fx-black;
 }
 
-/* Statistiques */
+/* Styles pour les statistiques */
 .stats-label {
     -fx-font-size: 14px;
     -fx-text-fill: -fx-primary-dark;
@@ -379,92 +239,6 @@
 .loss-rate-label {
     -fx-text-fill: -fx-secondary;
 }
-
-
-/* Styles pour la zone de chat */
-.chat-container {
-    -fx-background-color: -fx-white;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-border-color: -fx-grey;
-    -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
-}
-
-#chatTextArea {
-    -fx-background-radius: 0 0 10 10;
-    -fx-border-radius: 0 0 10 10;
-    -fx-padding: 10;
-    -fx-font-size: 13px;
-    -fx-border-width: 0;
-    -fx-background-color: -fx-white;
-}
-
-#chatVBox {
-    -fx-spacing: 10;
-    -fx-padding: 10;
-}
-
-/* Style pour les messages envoyés */
-.message-self {
-    -fx-background-color: -fx-primary;
-    -fx-text-fill: -fx-white;
-    -fx-background-radius: 15 15 5 15;
-    -fx-padding: 8 12;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
-    -fx-alignment: CENTER-RIGHT;
-    -fx-max-width: 80%;
-    -fx-wrap-text: true;
-}
-
-/* Style pour les messages reçus */
-.message-other {
-    -fx-background-color: -fx-grey-light;
-    -fx-text-fill: -fx-black;
-    -fx-background-radius: 15 15 15 5;
-    -fx-padding: 8 12;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
-    -fx-alignment: CENTER-LEFT;
-    -fx-max-width: 80%;
-    -fx-wrap-text: true;
-}
-
-/* Style pour l'interface de saisie */
-.chat-input-container {
-    -fx-background-color: -fx-white;
-    -fx-padding: 10;
-    -fx-spacing: 10;
-    -fx-border-color: -fx-grey;
-    -fx-border-width: 1 0 0 0;
-}
-
-#chatTextField {
-    -fx-background-radius: 20;
-    -fx-padding: 8 15;
-    -fx-border-radius: 20;
-    -fx-prompt-text-fill: -fx-grey-dark;
-}
-
-#chatSendButton {
-    -fx-background-radius: 20;
-    -fx-padding: 8 15;
-    -fx-graphic: url("icons/send-icon.png");  /* Vous devrez ajouter cette icône */
-}
-
-/* Animation pour les messages */
-.message-animation {
-    -fx-translate-y: 10;
-    -fx-opacity: 0;
-}
-
-/* Animation pour la mise en surbrillance des nouvelles messages */
-.message-highlight {
-    -fx-background-color: rgba(52, 152, 219, 0.1);
-    -fx-transition: -fx-background-color 1s ease-out;
-}
-
-
-/* Ajoutez ces styles à votre fichier CSS existant */
 
 /* Styles pour la zone de chat */
 .chat-container {
@@ -496,33 +270,39 @@
     -fx-background-radius: 5;
 }
 
-#chatMessagesContainer {
+#chatMessagesContainer, .chat-messages-container {
     -fx-background-color: transparent;
     -fx-padding: 10;
     -fx-spacing: 10;
 }
 
-/* Style pour les messages envoyés */
-.message-self {
-    -fx-background-color: -fx-primary;
-    -fx-text-fill: -fx-white;
+/* Style pour les messages */
+.message-self, .own-message {
+    -fx-background-color: #DCF8C6;
+    -fx-padding: 8px;
     -fx-background-radius: 15 15 5 15;
-    -fx-padding: 8 12;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
     -fx-max-width: 250;
 }
 
-/* Style pour les messages reçus */
-.message-other {
-    -fx-background-color: -fx-grey-light;
-    -fx-text-fill: -fx-black;
+.message-other, .other-message {
+    -fx-background-color: #ECECEC;
+    -fx-padding: 8px;
     -fx-background-radius: 15 15 15 5;
-    -fx-padding: 8 12;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
     -fx-max-width: 250;
 }
 
-/* Style pour l'interface de saisie */
+.chat-sender {
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.chat-text {
+    -fx-font-size: 13px;
+}
+
+/* Style pour l'interface de saisie du chat */
 .chat-input-container {
     -fx-background-color: -fx-white;
     -fx-padding: 10;
@@ -543,7 +323,7 @@
     -fx-padding: 8 15;
 }
 
-/* Style pour afficher l'indicateur de frappe */
+/* Style pour l'indicateur de frappe */
 .typing-indicator {
     -fx-background-color: -fx-grey-light;
     -fx-background-radius: 10;
@@ -562,25 +342,4 @@
     -fx-pref-width: 5;
     -fx-pref-height: 5;
     -fx-margin: 0 3;
-}
-
-.chat-sender {
-    -fx-font-weight: bold;
-    -fx-font-size: 11px;
-}
-
-.chat-text {
-    -fx-font-size: 13px;
-}
-
-.own-message {
-    -fx-background-color: #DCF8C6;
-    -fx-padding: 8px;
-    -fx-background-radius: 8px;
-}
-
-.other-message {
-    -fx-background-color: #ECECEC;
-    -fx-padding: 8px;
-    -fx-background-radius: 8px;
 }

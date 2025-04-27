@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.morpion.common.utils.FigletUtils;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -20,14 +22,13 @@ public class ClientMain extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Charger l'interface FXML du jeu client (original)
-            // FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/game-client.fxml"));
             // Charger l'interface FXML du menu principal
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/main-menu.fxml"));
             Parent root = loader.load();
 
             // Configurer la scène
-            Scene scene = new Scene(root, 600, 500);
+            // Scene scene = new Scene(root, 600, 500);
+            Scene scene = new Scene(root, 800, 800);
 
             // Charger les styles CSS
             String cssPath = "css/styles.css";
@@ -52,6 +53,11 @@ public class ClientMain extends Application {
      * @param args Arguments de la ligne de commande
      */
     public static void main(String[] args) {
+        // Afficher la bannière Figlet
+        FigletUtils.printFiglet("Morpion Client", "slant");
+        FigletUtils.printFiglet("Application client Morpion démarrée","dotmatrix");
+        System.out.println("--------------------------------------");
+        
         launch(args);
     }
 }

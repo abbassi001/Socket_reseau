@@ -9,8 +9,6 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.morpion.client.view.ChatWebView;
-import com.morpion.client.view.GameClient;
 import com.morpion.client.view.GameSymbols;
 import com.morpion.common.network.GameCommand;
 import com.morpion.common.network.GameProtocol;
@@ -32,47 +30,30 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /**
  * Contrôleur pour l'interface du client
  */
-public class GameClientController implements GameClient {
+public class GameClientController implements com.morpion.client.view.GameClient {
 
     private static final Logger LOGGER = Logger.getLogger(GameClientController.class.getName());
 
     // Composants FXML
-    @FXML
-    private TextField serverTextField;
-    @FXML
-    private TextField portTextField;
-    @FXML
-    private TextField nameTextField;
-    @FXML
-    private Button connectButton;
-    @FXML
-    private Button disconnectButton;
-    @FXML
-    private GridPane boardGrid;
-    @FXML
-    private Label statusLabel;
-    @FXML
-    private Button chatSendButton;
-    @FXML
-    private Button resetButton;
-    @FXML
-    private VBox chatMessagesContainer;
-    @FXML
-    private ScrollPane chatScrollPane;
-    @FXML
-    private TextField chatTextField;
-
-    // Nouveau composant pour le chat WebView
-    @FXML
-    private StackPane chatWebViewContainer;
-    private ChatWebView chatWebView;
+    @FXML private TextField serverTextField;
+    @FXML private TextField portTextField;
+    @FXML private TextField nameTextField;
+    @FXML private Button connectButton;
+    @FXML private Button disconnectButton;
+    @FXML private GridPane boardGrid;
+    @FXML private Label statusLabel;
+    @FXML private Button chatSendButton;
+    @FXML private Button resetButton;
+    @FXML private VBox chatMessagesContainer;
+    @FXML private ScrollPane chatScrollPane;
+    @FXML private TextField chatTextField;
 
     // Propriétés du client
     private Socket socket;
@@ -117,18 +98,11 @@ public class GameClientController implements GameClient {
 
         // Initialiser les tuiles du plateau
         initializeBoard();
-        // Initialiser le chat avec WebView
-System.out.println("Initialisation du ChatWebView...");
-chatWebView = new ChatWebView();
-if (chatWebViewContainer != null) {
-    System.out.println("Ajout du ChatWebView au conteneur...");
-    chatWebViewContainer.getChildren().clear();
-    chatWebViewContainer.getChildren().add(chatWebView);
-    System.out.println("ChatWebView ajouté au conteneur");
-} else {
-    System.err.println("ERREUR: chatWebViewContainer est null!");
-}
-
+        
+        // Configurer le conteneur des messages
+        chatMessagesContainer.setSpacing(10);
+        chatMessagesContainer.setPadding(new javafx.geometry.Insets(10));
+        
         // Configurer l'action sur le champ de texte du chat
         chatTextField.setOnAction(event -> {
             if (!chatTextField.getText().trim().isEmpty()) {
@@ -215,7 +189,7 @@ if (chatWebViewContainer != null) {
 
         // Effacer le chat
         Platform.runLater(() -> {
-            chatWebView.clearChat();
+            chatMessagesContainer.getChildren().clear();
         });
 
         // Mettre à jour l'interface
@@ -226,9 +200,6 @@ if (chatWebViewContainer != null) {
 
     /**
      * Gère le clic sur une tuile du plateau
-     *
-     * @param row La ligne de la tuile
-     * @param col La colonne de la tuile
      */
     private void handleTileClick(int row, int col) {
         if (!connected) {
@@ -258,7 +229,7 @@ if (chatWebViewContainer != null) {
             GameProtocol.sendCommand(moveCommand, socket.getOutputStream());
 
             // Ajouter un message dans le chat pour indiquer le mouvement
-            chatWebView.addMessage("J'ai joué en position (" + (row + 1) + "," + (col + 1) + ")", true);
+            addChatMessageToUI("J'ai joué en position (" + (row + 1) + "," + (col + 1) + ")", true);
 
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Erreur lors de l'envoi du mouvement", e);
@@ -327,7 +298,7 @@ if (chatWebViewContainer != null) {
             GameProtocol.sendCommand(resetCommand, socket.getOutputStream());
 
             // Ajouter un message dans le chat
-            chatWebView.addMessage("J'ai réinitialisé la partie", true);
+            addChatMessageToUI("J'ai réinitialisé la partie", true);
 
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Erreur lors de l'envoi de la commande de réinitialisation", e);
@@ -335,6 +306,9 @@ if (chatWebViewContainer != null) {
         }
     }
 
+    /**
+     * Action du bouton "Envoyer" du chat
+     */
     @FXML
     public void handleChatSendButton() {
         if (!connected) {
@@ -357,10 +331,6 @@ if (chatWebViewContainer != null) {
             // Effacer le champ de texte
             chatTextField.clear();
             
-            // Ajouter directement le message au chat (pour test)
-            System.out.println("Ajout direct du message au chat: " + message);
-            chatWebView.addMessage(message, true);
-    
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Erreur lors de l'envoi du message de chat", e);
             disconnect();
@@ -369,10 +339,6 @@ if (chatWebViewContainer != null) {
 
     /**
      * Se connecte au serveur
-     *
-     * @param server L'adresse du serveur
-     * @param port Le port du serveur
-     * @param playerName Le nom du joueur
      */
     private void connect(String server, int port, String playerName) {
         try {
@@ -397,7 +363,7 @@ if (chatWebViewContainer != null) {
 
             // Message de bienvenue dans le chat
             Platform.runLater(() -> {
-                chatWebView.addMessage("Connexion au serveur " + server + ":" + port + " réussie!", false);
+                addChatMessageToUI("Connexion au serveur " + server + ":" + port + " réussie!", false);
             });
 
             LOGGER.info("Connecté au serveur " + server + ":" + port);
@@ -444,8 +410,6 @@ if (chatWebViewContainer != null) {
 
     /**
      * Traite une commande reçue du serveur
-     *
-     * @param command La commande à traiter
      */
     private void processCommand(GameCommand command) {
         switch (command.getType()) {
@@ -472,8 +436,6 @@ if (chatWebViewContainer != null) {
 
     /**
      * Gère une commande de confirmation de connexion
-     *
-     * @param command La commande à traiter
      */
     private void handleConnectAck(GameCommand command) {
         localPlayer = command.getPlayer();
@@ -486,7 +448,7 @@ if (chatWebViewContainer != null) {
                     "Vous êtes connecté en tant que joueur " + playerType + ".");
 
             // Message dans le chat pour indiquer le joueur connecté
-            chatWebView.addMessage("Vous êtes connecté en tant que joueur " + playerType + ".", false);
+            addChatMessageToUI("Vous êtes connecté en tant que joueur " + playerType + ".", false);
         });
 
         LOGGER.info("Connecté en tant que joueur " + localPlayer.getPlayerNumber());
@@ -494,8 +456,6 @@ if (chatWebViewContainer != null) {
 
     /**
      * Gère une commande d'état du jeu
-     *
-     * @param command La commande à traiter
      */
     private void handleGameState(GameCommand command) {
         GameState oldState = gameState;
@@ -509,23 +469,23 @@ if (chatWebViewContainer != null) {
                 switch (gameState.getStatus()) {
                     case IN_PROGRESS:
                         if (oldState.getStatus() == GameState.GameStatus.WAITING_FOR_PLAYERS) {
-                            chatWebView.addMessage("L'adversaire a rejoint la partie! La partie commence.", false);
+                            addChatMessageToUI("L'adversaire a rejoint la partie! La partie commence.", false);
                         }
                         break;
                     case PLAYER1_WON:
                         String winMessage = localPlayer.getPlayerNumber() == 1
                                 ? "Félicitations! Vous avez gagné!"
                                 : "Vous avez perdu. L'adversaire a gagné.";
-                        chatWebView.addMessage(winMessage, false);
+                        addChatMessageToUI(winMessage, false);
                         break;
                     case PLAYER2_WON:
                         String winMessage2 = localPlayer.getPlayerNumber() == 2
                                 ? "Félicitations! Vous avez gagné!"
                                 : "Vous avez perdu. L'adversaire a gagné.";
-                        chatWebView.addMessage(winMessage2, false);
+                        addChatMessageToUI(winMessage2, false);
                         break;
                     case DRAW:
-                        chatWebView.addMessage("Match nul! La partie est terminée.", false);
+                        addChatMessageToUI("Match nul! La partie est terminée.", false);
                         break;
                 }
             }
@@ -534,6 +494,9 @@ if (chatWebViewContainer != null) {
         LOGGER.info("État du jeu mis à jour: " + gameState.getStatus());
     }
 
+    /**
+     * Gère une commande de message de chat
+     */
     private void handleChatMessage(GameCommand command) {
         String message = command.getMessage();
         String senderId = command.getSenderId();
@@ -551,39 +514,22 @@ if (chatWebViewContainer != null) {
             if (isSelf) {
                 // Message envoyé par l'utilisateur local
                 System.out.println("Ajout d'un message personnel: " + message);
-                chatWebView.addMessage(message, true);
+                addChatMessageToUI(message, true);
             } else {
                 // Message reçu d'un autre joueur
-                System.out.println("Affichage de l'indicateur de frappe...");
-                chatWebView.showTypingIndicator();
-                
-                // Délai pour l'effet d'écriture
-                new Thread(() -> {
-                    try {
-                        Thread.sleep((long) (500 + Math.random() * 1000));
-                        Platform.runLater(() -> {
-                            System.out.println("Masquage de l'indicateur de frappe...");
-                            chatWebView.hideTypingIndicator();
-                            System.out.println("Ajout d'un message de l'adversaire: " + message);
-                            chatWebView.addMessage(message, false);
-                        });
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }).start();
+                System.out.println("Ajout d'un message de l'adversaire: " + message);
+                addChatMessageToUI(message, false);
             }
         });
     }
 
     /**
      * Gère une commande d'erreur
-     *
-     * @param command La commande à traiter
      */
     private void handleError(GameCommand command) {
         Platform.runLater(() -> {
             showAlert(Alert.AlertType.ERROR, "Erreur", command.getMessage());
-            chatWebView.addMessage("Erreur: " + command.getMessage(), false);
+            addChatMessageToUI("Erreur: " + command.getMessage(), false);
         });
 
         LOGGER.warning("Erreur reçue du serveur: " + command.getMessage());
@@ -640,8 +586,6 @@ if (chatWebViewContainer != null) {
 
     /**
      * Dessine un X dans une tuile
-     *
-     * @param tile La tuile dans laquelle dessiner
      */
     private void drawX(Pane tile) {
         GameSymbols.drawX(tile);
@@ -649,8 +593,6 @@ if (chatWebViewContainer != null) {
 
     /**
      * Dessine un O dans une tuile
-     *
-     * @param tile La tuile dans laquelle dessiner
      */
     private void drawO(Pane tile) {
         GameSymbols.drawO(tile);
@@ -703,16 +645,11 @@ if (chatWebViewContainer != null) {
             default:
                 status = "État inconnu";
         }
-
         statusLabel.setText(status);
     }
 
     /**
      * Affiche une boîte de dialogue d'alerte
-     *
-     * @param type Le type d'alerte
-     * @param title Le titre de l'alerte
-     * @param message Le message de l'alerte
      */
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
@@ -732,77 +669,78 @@ if (chatWebViewContainer != null) {
             if (connected) {
                 disconnect();
             }
-
+    
             // Charger l'interface FXML du menu principal
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/main-menu.fxml"));
             Parent root = loader.load();
-
+    
             // Créer une nouvelle scène
-            Scene scene = new Scene(root, 500, 500);
+            Scene scene = new Scene(root, 900, 900);
             String cssPath = "css/styles.css";
             if (getClass().getClassLoader().getResource(cssPath) != null) {
                 scene.getStylesheets().add(getClass().getClassLoader().getResource(cssPath).toExternalForm());
             }
-
+    
             // Obtenir la fenêtre actuelle
             Stage stage = (Stage) connectButton.getScene().getWindow();
-
+    
             // Configurer et afficher la nouvelle scène
             stage.setTitle("Morpion");
             stage.setScene(scene);
             stage.show();
-
+    
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Erreur lors du chargement du menu principal", e);
             showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors du chargement du menu principal: " + e.getMessage());
         }
     }
-
-    /**
-     * Traite les messages de chat reçus du serveur
-     *
-     * @param senderId ID du client qui a envoyé le message
-     * @param senderName Nom du joueur qui a envoyé le message (ou null)
-     * @param message Contenu du message
-     */
-    private void handleIncomingChatMessage(String senderId, String message) {
-        Platform.runLater(() -> {
-            // Déterminer si c'est notre propre message
-            boolean isOwnMessage = playerId.equals(senderId);
-
-            // Ajouter à l'interface graphique
-            addChatMessageToUI(senderId, message, isOwnMessage);
-        });
-    }
+    
 
     /**
      * Ajoute un message de chat à l'interface utilisateur
      */
-    private void addChatMessageToUI(String senderId, String message, boolean isOwnMessage) {
-        // Créer un label pour le nom du joueur
-        Label nameLabel = new Label(isOwnMessage ? "Vous" : "Joueur " + senderId);
-        nameLabel.getStyleClass().add("chat-sender");
+    private void addChatMessageToUI(String message, boolean isOwnMessage) {
+        Platform.runLater(() -> {
+            // Créer un conteneur pour le message avec du style
+            HBox messageContainer = new HBox();
+            messageContainer.setAlignment(isOwnMessage ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
+            messageContainer.setPadding(new javafx.geometry.Insets(5));
 
-        // Créer un label pour le texte du message
-        Label messageLabel = new Label(message);
-        messageLabel.setWrapText(true);
-        messageLabel.getStyleClass().add("chat-text");
-
-        // Créer un conteneur pour le message
-        VBox messageBox = new VBox(3, nameLabel, messageLabel);
-        messageBox.getStyleClass().add(isOwnMessage ? "own-message" : "other-message");
-        messageBox.setMaxWidth(200);
-
-        // Wrapper dans un HBox pour l'alignement
-        HBox wrapper = new HBox();
-        wrapper.setAlignment(isOwnMessage ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
-        wrapper.getChildren().add(messageBox);
-
-        // Ajouter au conteneur de messages
-        chatMessagesContainer.getChildren().add(wrapper);
-
-        // Faire défiler vers le bas
-        Platform.runLater(() -> chatScrollPane.setVvalue(1.0));
+            // Créer la bulle de message
+            VBox messageBox = new VBox(5);
+            
+            // Appliquer une classe de style différente selon l'expéditeur
+            messageBox.getStyleClass().add(isOwnMessage ? "own-message" : "other-message");
+            
+            // Ajouter le texte qui identifie l'expéditeur
+            Label senderLabel = new Label(isOwnMessage ? "Vous" : "Adversaire");
+            senderLabel.getStyleClass().add("chat-sender");
+            
+            // Ajouter le texte du message
+            Label messageLabel = new Label(message);
+            messageLabel.setWrapText(true); // Permettre le retour à la ligne automatique
+            messageLabel.getStyleClass().add("chat-text");
+            
+            // Assembler la bulle de message
+            messageBox.getChildren().addAll(senderLabel, messageLabel);
+            messageBox.setMaxWidth(250); // Limiter la largeur des messages
+            
+            // Ajouter la bulle au conteneur
+            messageContainer.getChildren().add(messageBox);
+            
+            // Ajouter le message au conteneur de messages
+            chatMessagesContainer.getChildren().add(messageContainer);
+            
+            // Faire défiler automatiquement vers le dernier message
+            chatScrollPane.setVvalue(1.0);
+        });
     }
 
+    /**
+     * Ferme le client et libère les ressources
+     */
+    public void close() {
+        disconnect();
+        executorService.shutdown();
+    }
 }

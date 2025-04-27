@@ -386,9 +386,6 @@ public class AIGameController {
         alert.showAndWait();
     }
     
-    /**
-     * Action du bouton "Retour au menu"
-     */
     @FXML
     public void handleBackToMenuButton() {
         try {
@@ -397,7 +394,7 @@ public class AIGameController {
             Parent root = loader.load();
             
             // Créer une nouvelle scène
-            Scene scene = new Scene(root, 500, 500);
+            Scene scene = new Scene(root, 800, 800);
             String cssPath = "css/styles.css";
             if (getClass().getClassLoader().getResource(cssPath) != null) {
                 scene.getStylesheets().add(getClass().getClassLoader().getResource(cssPath).toExternalForm());

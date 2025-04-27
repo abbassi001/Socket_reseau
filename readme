@@ -1,64 +1,195 @@
-Continuons l'implémentation du contrôleur client :
+# Jeu de Morpion en Réseau
 
-Maintenant, créons l'interface GameClient que nous avons utilisée dans notre contrôleur :
+Un jeu de morpion (Tic-Tac-Toe) avec modes local, contre l'IA et en réseau, développé en Java avec JavaFX.
 
-Créons maintenant le fichier FXML pour l'interface du client :
+![Logo Morpion](logo.png)
 
-Enfin, créons un fichier CSS pour styler notre interface :
+## Fonctionnalités
 
-Voilà ! Nous avons implémenté un jeu de morpion en réseau en utilisant une architecture MVC et des sockets en Java. Voici un résumé de notre implémentation :
+- **Trois modes de jeu :**
+  - Mode Local (2 joueurs sur le même ordinateur)
+  - Mode contre l'IA (algorithme intelligent avec différents niveaux de stratégie)
+  - Mode Réseau (jouer contre d'autres joueurs via Internet)
+  
+- **Interface utilisateur moderne :**
+  - Design épuré et convivial avec animations
+  - Interface réactive grâce à JavaFX
+  
+- **Fonctionnalités réseau avancées :**
+  - Chat intégré avec indicateur de frappe
+  - Gestion des connexions et déconnexions
+  - Sécurité et validation des mouvements côté serveur
+  
+- **Moniteur serveur :**
+  - Interface graphique pour la gestion du serveur
+  - Journalisation des événements et commandes
+  - Suivi en temps réel des clients connectés
+
+- **Effet Figlet au démarrage :**
+  - Affichage stylisé au démarrage client et serveur
+  - Utilisation de la commande Figlet de votre système
+
+## Prérequis
+
+- Java 11 ou supérieur
+- JavaFX 17 ou supérieur
+- Maven pour la compilation
+- Figlet installé sur votre système (pour l'affichage stylisé)
+
+## Installation
+
+### Installation de Figlet (si nécessaire)
+
+```bash
+# Sous Ubuntu/Debian
+sudo apt install figlet
+
+# Sous macOS avec Homebrew
+brew install figlet
+```
+
+### Compilation du projet
+
+```bash
+# Cloner le dépôt
+git clone https://github.com/votre-repo/morpion-jeu.git
+cd morpion-jeu
+
+# Compiler avec Maven
+mvn clean package
+```
+
+## Utilisation
+
+### Démarrer le serveur
+
+```bash
+java -jar target/morpion-jeu-1.0-SNAPSHOT.jar server
+```
+
+Ou avec la commande Maven :
+
+```bash
+mvn javafx:run@run-server
+```
+
+### Démarrer le client
+
+```bash
+java -jar target/morpion-jeu-1.0-SNAPSHOT.jar client
+```
+
+Ou avec la commande Maven :
+
+```bash
+mvn javafx:run@run-client
+```
 
 ## Structure du projet
-- **Architecture MVC** : Le projet est structuré en suivant le modèle Modèle-Vue-Contrôleur.
-- **Communication réseau** : Les communications entre client et serveur sont gérées par des sockets Java.
-- **Interface graphique** : L'interface utilisateur est créée avec JavaFX et FXML.
 
-## Composants principaux
+```
+morpion-jeu/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/
+│   │   │       └── morpion/
+│   │   │           ├── client/         # Application client
+│   │   │           ├── common/         # Classes communes
+│   │   │           ├── model/          # Modèles de données
+│   │   │           └── server/         # Application serveur
+│   │   └── resources/
+│   │       ├── css/                    # Styles CSS
+│   │       └── fxml/                   # Layouts FXML
+│   └── test/                           # Tests unitaires
+└── pom.xml                             # Configuration Maven
+```
 
-### Modèle
-1. **GameState** : Représente l'état du jeu (grille, joueur actuel, statut).
-2. **Player** : Représente un joueur (identifiant, nom, numéro).
-3. **Move** : Représente un mouvement effectué par un joueur.
+## Mode d'emploi
 
-### Communication réseau
-1. **GameCommand** : Représente une commande échangée entre client et serveur.
-2. **GameProtocol** : Fournit des méthodes pour sérialiser/désérialiser les commandes.
-3. **GameSession** : Gère une session de jeu côté serveur, avec plusieurs clients.
-4. **NetworkUtils** : Classe utilitaire pour les opérations réseau.
+### Mode local
 
-### Côté serveur
-1. **ServerMain** : Point d'entrée de l'application serveur.
-2. **GameServerController** : Contrôleur pour l'interface du serveur.
-3. **ServerMonitor** : Interface pour la surveillance du serveur.
+1. Lancez l'application client
+2. Sélectionnez "Mode Local" dans le menu principal
+3. Jouez à tour de rôle sur le même écran
 
-### Côté client
-1. **ClientMain** : Point d'entrée de l'application client.
-2. **GameClientController** : Contrôleur pour l'interface du client.
-3. **GameClient** : Interface pour le client.
+### Mode contre l'IA
 
-### Interface utilisateur
-1. **server-monitor.fxml** : Interface FXML pour le serveur.
-2. **game-client.fxml** : Interface FXML pour le client.
-3. **styles.css** : Styles CSS pour les interfaces.
+1. Lancez l'application client
+2. Sélectionnez "Jouer contre l'ordinateur" dans le menu principal
+3. Jouez contre l'IA qui utilise différentes stratégies
 
-## Fonctionnalités implémentées
-- Connexion/déconnexion au serveur
-- Jeu de morpion à deux joueurs
-- Chat entre les joueurs
-- Réinitialisation de la partie
-- Interface utilisateur intuitive
-- Gestion des erreurs et des situations exceptionnelles
+### Mode Réseau
 
-## Comment utiliser l'application
-1. Lancez d'abord le serveur (ServerMain)
-2. Lancez ensuite un ou deux clients (ClientMain)
-3. Connectez-vous au serveur depuis les clients
-4. Jouez au morpion !
+1. Lancez l'application serveur sur l'ordinateur qui servira de serveur
+2. Notez l'adresse IP affichée dans l'interface du serveur
+3. Lancez l'application client sur chaque ordinateur qui souhaite jouer
+4. Sélectionnez "Jeu en Réseau" dans le menu principal
+5. Entrez l'adresse IP du serveur et un nom d'utilisateur
+6. Connectez-vous et jouez contre d'autres joueurs
 
-Ce projet peut être encore amélioré avec des fonctionnalités supplémentaires comme :
-- Système de matchmaking
-- Sauvegarde des scores
-- Plus d'options de personnalisation
-- Support pour plusieurs parties simultanées
+## Fonctionnement du réseau
 
-N'hésitez pas à me poser des questions si vous avez besoin d'éclaircissements sur certaines parties du code ou si vous souhaitez des explications supplémentaires !
+- Le serveur doit être démarré avant que les clients puissent se connecter
+- Le serveur gère l'état du jeu et valide les mouvements des joueurs
+- Tous les échanges entre clients passent par le serveur
+- Un maximum de 2 joueurs peut jouer une partie à la fois
+- D'autres joueurs peuvent se connecter mais devront attendre
+
+## Personnalisation
+
+### Changer la police Figlet
+
+Modifiez les appels à `FigletUtils.printFiglet()` dans les classes `ClientMain` et `ServerMain` :
+
+```java
+// Utilisez une police différente
+FigletUtils.printFiglet("Morpion Client", "banner");
+```
+
+Polices populaires disponibles avec Figlet :
+- standard
+- slant
+- big
+- banner
+- block
+- bubble
+- digital
+- ivrit
+- mini
+- script
+- shadow
+- small
+- smscript
+- smshadow
+- standard
+- term
+
+## Dépannage
+
+### Problèmes de connexion réseau
+
+- Vérifiez que le serveur est démarré avant les clients
+- Assurez-vous que le pare-feu ne bloque pas le port utilisé (par défaut 9876)
+- Utilisez "localhost" comme adresse pour jouer en local
+
+### Problèmes d'affichage Figlet
+
+- Assurez-vous que Figlet est installé sur votre système
+- Vérifiez que la commande `figlet` est disponible dans votre PATH
+- Si Figlet n'est pas disponible, l'application fonctionnera quand même mais sans l'affichage stylisé
+
+## Licence
+
+Ce projet est distribué sous licence MIT. Voir le fichier LICENSE pour plus d'informations.
+
+## Contributeurs
+
+- Votre Nom - Développeur principal
+- Autres contributeurs
+
+## Remerciements
+
+- L'équipe JavaFX pour leur excellent framework
+- La communauté Java pour leur support
+- Les développeurs de Figlet pour l'outil d'affichage ASCII art

@@ -13,10 +13,10 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="500.0" prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.morpion.client.controller.AIGameController">
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="550.0" prefHeight="600.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.morpion.client.controller.AIGameController">
    <children>
-      <Rectangle fill="#ecf0f1" arcHeight="30.0" arcWidth="30.0" height="580.0" width="480.0" stroke="#3498db" strokeWidth="2.0" />
-      <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="580.0" minWidth="480.0" prefHeight="580.0" prefWidth="480.0">
+      <Rectangle fill="#ecf0f1" arcHeight="30.0" arcWidth="30.0" height="580.0" width="530.0" stroke="#3498db" strokeWidth="2.0" />
+      <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="580.0" minWidth="530.0" prefHeight="580.0" prefWidth="530.0">
          <center>
             <VBox alignment="TOP_CENTER" spacing="20.0" BorderPane.alignment="CENTER">
                <children>
@@ -41,7 +41,7 @@
                               </Label>
                            </children>
                         </VBox>
-                        <GridPane fx:id="boardGrid" alignment="CENTER" gridLinesVisible="true" id="boardGrid" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="300.0">
+                        <GridPane fx:id="boardGrid" alignment="CENTER" gridLinesVisible="true" id="boardGrid" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="350.0" minWidth="350.0" prefHeight="350.0" prefWidth="350.0">
                            <columnConstraints>
                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />

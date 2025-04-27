@@ -22,17 +22,20 @@
                <children>
                   <Label styleClass="game-title" text="JEU DE MORPION">
                      <font>
-                        <Font name="System Bold" size="28.0" />
+                        <Font name="System Bold" size="32.0" />
                      </font>
                   </Label>
                   <Label styleClass="game-subtitle" text="Choisissez un mode de jeu">
                      <font>
-                        <Font size="16.0" />
+                        <Font size="18.0" />
                      </font>
+                     <VBox.margin>
+                        <Insets top="10.0" bottom="15.0" />
+                     </VBox.margin>
                   </Label>
                   <Button fx:id="aiGameButton" mnemonicParsing="false" onAction="#handleAIGameButton" styleClass="menu-button" text="Jouer contre l'ordinateur">
                      <font>
-                        <Font size="16.0" />
+                        <Font size="18.0" />
                      </font>
                      <VBox.margin>
                         <Insets top="20.0" />
@@ -40,15 +43,18 @@
                   </Button>
                   <Button fx:id="networkGameButton" mnemonicParsing="false" onAction="#handleNetworkGameButton" styleClass="menu-button" text="Jeu en Réseau">
                      <font>
-                        <Font size="16.0" />
+                        <Font size="18.0" />
                      </font>
+                     <VBox.margin>
+                        <Insets top="15.0" />
+                     </VBox.margin>
                   </Button>
                   <Button fx:id="exitButton" mnemonicParsing="false" onAction="#handleExitButton" styleClass="menu-button" text="Quitter">
                      <font>
-                        <Font size="16.0" />
+                        <Font size="18.0" />
                      </font>
                      <VBox.margin>
-                        <Insets top="20.0" />
+                        <Insets top="30.0" />
                      </VBox.margin>
                   </Button>
                   <Label text="© 2025 - Jeu de Morpion Réseau" textFill="#9e9e9e">
@@ -56,7 +62,7 @@
                         <Font size="11.0" />
                      </font>
                      <VBox.margin>
-                        <Insets top="30.0" />
+                        <Insets top="40.0" />
                      </VBox.margin>
                   </Label>
                </children>

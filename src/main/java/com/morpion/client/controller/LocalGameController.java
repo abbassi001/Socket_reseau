@@ -299,28 +299,32 @@ private void showGameEndDialog(String title, String message) {
     /**
      * Action du bouton "Retour au menu"
      */
-    @FXML
-    public void handleBackToMenuButton() {
-        try {
-            // Charger l'interface FXML du menu principal
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main-menu.fxml"));
-            Parent root = loader.load();
-            
-            // Créer une nouvelle scène
-            Scene scene = new Scene(root, 400, 400);
-            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
-            
-            // Obtenir la fenêtre actuelle
-            Stage stage = (Stage) resetButton.getScene().getWindow();
-            
-            // Configurer et afficher la nouvelle scène
-            stage.setTitle("Morpion");
-            stage.setScene(scene);
-            stage.show();
-            
-        } catch (IOException e) {
-            Logger.getLogger(LocalGameController.class.getName()).log(Level.SEVERE, 
-                    "Erreur lors du chargement du menu principal", e);
+@FXML
+public void handleBackToMenuButton() {
+    try {
+        // Charger l'interface FXML du menu principal
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/main-menu.fxml"));
+        Parent root = loader.load();
+        
+        // Créer une nouvelle scène
+        Scene scene = new Scene(root, 800, 800);
+        String cssPath = "css/styles.css";
+        if (getClass().getClassLoader().getResource(cssPath) != null) {
+            scene.getStylesheets().add(getClass().getClassLoader().getResource(cssPath).toExternalForm());
         }
+        
+        // Obtenir la fenêtre actuelle
+        Stage stage = (Stage) resetButton.getScene().getWindow();
+        
+        // Configurer et afficher la nouvelle scène
+        stage.setTitle("Morpion");
+        stage.setScene(scene);
+        stage.show();
+        
     }
+    catch (IOException e) {
+        Logger.getLogger(LocalGameController.class.getName()).log(Level.SEVERE, 
+                "Erreur lors du chargement du menu principal", e);
+    }
+}
 }

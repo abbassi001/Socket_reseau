@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.morpion.common.network.GameSession;
+import com.morpion.common.utils.FigletUtils;
 import com.morpion.common.utils.NetworkUtils;
 import com.morpion.server.view.ServerMonitor;
 
@@ -66,44 +67,42 @@ public class ServerMain extends Application {
         }
     }
     
-    // Dans ServerMain.java, modifiez la méthode startServer
-
-public void startServer(int port) {
-    if (running) {
-        stopServer();
+    public void startServer(int port) {
+        if (running) {
+            stopServer();
+        }
+        
+        try {
+            // Créer la socket serveur
+            serverSocket = new ServerSocket(port);
+            
+            // Créer la session de jeu avec le moniteur serveur
+            gameSession = new GameSession(serverMonitor);
+            
+            running = true;
+            
+            // Créer et démarrer le thread d'écoute
+            serverThread = new Thread(this::acceptClientsLoop);
+            serverThread.setDaemon(true);
+            serverThread.start();
+            
+            // Mettre à jour l'interface
+            String localIP = NetworkUtils.getMainLocalIpAddress();
+            Platform.runLater(() -> {
+                serverMonitor.updateServerStatus(true, localIP, port);
+                serverMonitor.addLogMessage("Serveur démarré sur " + localIP + ":" + port);
+            });
+            
+            LOGGER.info("Serveur démarré sur " + localIP + ":" + port);
+            
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Erreur lors du démarrage du serveur", e);
+            Platform.runLater(() -> {
+                serverMonitor.updateServerStatus(false, null, 0);
+                serverMonitor.addLogMessage("Erreur lors du démarrage du serveur: " + e.getMessage());
+            });
+        }
     }
-    
-    try {
-        // Créer la socket serveur
-        serverSocket = new ServerSocket(port);
-        
-        // Créer la session de jeu avec le moniteur serveur
-        gameSession = new GameSession(serverMonitor);
-        
-        running = true;
-        
-        // Créer et démarrer le thread d'écoute
-        serverThread = new Thread(this::acceptClientsLoop);
-        serverThread.setDaemon(true);
-        serverThread.start();
-        
-        // Mettre à jour l'interface
-        String localIP = NetworkUtils.getMainLocalIpAddress();
-        Platform.runLater(() -> {
-            serverMonitor.updateServerStatus(true, localIP, port);
-            serverMonitor.addLogMessage("Serveur démarré sur " + localIP + ":" + port);
-        });
-        
-        LOGGER.info("Serveur démarré sur " + localIP + ":" + port);
-        
-    } catch (IOException e) {
-        LOGGER.log(Level.SEVERE, "Erreur lors du démarrage du serveur", e);
-        Platform.runLater(() -> {
-            serverMonitor.updateServerStatus(false, null, 0);
-            serverMonitor.addLogMessage("Erreur lors du démarrage du serveur: " + e.getMessage());
-        });
-    }
-}
     
     /**
      * Arrête le serveur
@@ -181,6 +180,11 @@ public void startServer(int port) {
      * @param args Arguments de la ligne de commande
      */
     public static void main(String[] args) {
+        // Afficher la bannière Figlet
+        FigletUtils.printFiglet("Morpion Server", "big");
+        FigletUtils.printFiglet("Serveur Morpion démarré","dotmatrix");
+        System.out.println("--------------------------------------");
+        
         launch(args);
     }
     
